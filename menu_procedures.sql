@@ -25,6 +25,7 @@ AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
         RAISERROR('Menu is active', -1, -1)
+        RETURN
     END 
 
     DECLARE @PrevStartDate datetime
@@ -48,11 +49,13 @@ AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
         RAISERROR('Menu is active', -1, -1)
+        RETURN
     END 
 
     IF (SELECT Active FROM Meals WHERE MealID = @MealID) = 0
     BEGIN
         RAISERROR('Meal is not active', -1, -1)
+        RETURN
     END 
 
     DECLARE @DefaultPrice money
@@ -71,6 +74,7 @@ AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
         RAISERROR('Menu is active', -1, -1)
+        RETURN
     END
 
     DELETE MenuItems
@@ -86,50 +90,47 @@ AS BEGIN
     -- Check if not active
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
-        RAISERROR('Menu is active', -1, -1)
+        ;THROW 52000, 'Menu is active', 1
+        RETURN
     END
 
     -- Check if date do not overlap/ there is a gap
-    DECLARE @StartDate datetime
-    SELECT @StartDate = EndDate
-    FROM Menu WHERE MenuID = @MenuID
-
-    DECLARE @LastMenuDate datetime
-    SELECT @LastMenuDate = MAX(EndDate)
-    FROM Menu WHERE Active = 1
+    DECLARE @StartDate datetime = (SELECT StartDate FROM Menu WHERE MenuID = @MenuID)
+    DECLARE @LastMenuDate datetime = (SELECT MAX(EndDate) FROM Menu WHERE Active = 1)
     
-    if DATEDIFF(day, @StartDate, @LastMenuDate) != 0
+    if DATEDIFF(day, @LastMenuDate, @StartDate) <= 0
     BEGIN
-        RAISERROR('Invalid dates', -1, -1)
+        ;THROW 52000, 'Overlapping dates', 1
+        RETURN
     END
 
     -- Check if there menu items are legal
     DECLARE @Count int
     DECLARE @NotChangedCount int
 
-    SELECT @Count = Count(*)
+    SELECT @Count = Count(MealID)
     FROM Menu
     JOIN MenuItems ON MenuItems.MenuID = Menu.MenuID
     WHERE Menu.MenuID = @MenuID
 
-    SELECT @NotChangedCount = Count(*)
-    FROM Menu JOIN MenuItems ON MenuItems.MenuID = Menu.MenuID
+    SELECT @NotChangedCount = Count(MealID)
+    FROM Menu 
+    JOIN MenuItems ON MenuItems.MenuID = Menu.MenuID
     WHERE Menu.MenuID = @MenuID AND MenuItems.MealID IN (
         SELECT MI2.MealID
         FROM MenuItems AS MI2
         JOIN Menu AS M2 ON M2.MenuID = MI2.MenuID
-        WHERE DATEDIFF(day, M2.EndDate, Menu.StartDate) < 14
+        WHERE M2.Active = 1 AND DATEDIFF(day, M2.EndDate, Menu.StartDate) < 14
     )
 
     IF (@NotChangedCount * 2) > @Count
     BEGIN
-        RAISERROR('Menu is not legal', -1, -1)
+        ;THROW 52000, 'Menu is not legal', 1
+        RETURN
     END
-    ELSE
-    BEGIN
-        -- Everything is correct
-        UPDATE Menu SET Active = 1
-        WHERE MenuID = @MenuID
-    END
+
+    -- Everything is correct
+    UPDATE Menu SET Active = 1
+    WHERE MenuID = @MenuID
 END
 GO
