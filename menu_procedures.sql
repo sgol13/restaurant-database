@@ -106,7 +106,7 @@ GO
 
 --> Procedury
 --# ActivateMenu(MenuID)
---- Próbuje aktywować menu biorąc pod uwagę niepowtarzanie się posiłków i nienachodzenie dat.
+--- Próbuje aktywować menu biorąc pod uwagę nie powtarzanie się posiłków i nie nachodzenie dat.
 CREATE PROCEDURE ActivateMenu(@MenuID int)
 AS BEGIN
     -- Check if not active
