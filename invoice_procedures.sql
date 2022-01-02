@@ -13,7 +13,7 @@ AS BEGIN
     END
     IF (SELECT Paid FROM Orders WHERE OrderID = @OrderID) = 0
     BEGIN
-        ;THROW 5200, 'Order hasnt been paid', 1
+        ;THROW 5200, 'Order has not been paid yet', 1
         RETURN
     END
 
@@ -42,7 +42,6 @@ GO
 --- Generuje fakturę dla danego klienta, dla danego miesiąca.
 CREATE PROCEDURE CreateMonthlyInvoice(@CustomerID Int, @Month int, @Year int)
 AS BEGIN
-    -- Last day of the month is in the past
     IF DATEFROMPARTS(@Year, @Month, DAY(EOMONTH(DATEFROMPARTS(@Year, @Month, 1)))) >= GETDATE()
     BEGIN
         ;THROW 5200, 'The month hasnt passed yet', 1
