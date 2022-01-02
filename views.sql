@@ -1,17 +1,30 @@
-create view CurrentOrders
-as select * from Orders
-where OrderDate <= getdate() and  getdate() < CompletionDate
+--> Widoki
+--# CurrentOrders
+--- Pokazuje zamówienia w trakcie realizacji.
+CREATE VIEW CurrentOrders
+AS SELECT * FROM Orders
+WHERE OrderDate <= GETDATE() AND GETDATE() < CompletionDate
+--<
 
-create view OrderHist
-as select * from Orders where CompletionDate <= getdate()
+--# OrderHist
+--- Pokazuje historię zamówień.
+CREATE VIEW OrderHist
+AS SELECT * FROM Orders WHERE CompletionDate <= GETDATE()
+--<
 
-create view ReservationsToAccept
-as select * from Reservations where Accepted = 0
+--# ReservationsToAccept
+--- Pokazuje rezerwacje, które nie zostały zaakceptowane.
+CREATE VIEW ReservationsToAccept
+AS SELECT * FROM Reservations WHERE Accepted = 0
+--<
 
-create view SeafoodOrders
-as select *
-    from Orders O
-    inner join OrderDetails OD on O.OrderID = OD.OrderID
-    inner join MenuItems MI on OD.MenuID = MI.MenuID and OD.MealID = MI.MealID
-    inner join Meals M on M.MealID = MI.MealID
-where SeaFood = 1
+--# SeafoodOrders
+--- Pokazuje zamówienia, które zawierają dania z owocami morza.
+CREATE VIEW SeafoodOrders
+AS SELECT *
+    FROM Orders O
+    INNER JOIN OrderDetails OD ON O.OrderID = OD.OrderID
+    INNER JOIN MenuItems MI ON OD.MenuID = MI.MenuID AND OD.MealID = MI.MealID
+    INNER JOIN Meals M ON M.MealID = MI.MealID
+WHERE SeaFood = 1
+--<
