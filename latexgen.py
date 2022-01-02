@@ -42,7 +42,7 @@ while start < len(text):
         fragments[type][title] = (desc, code)
     else:
         (desc0, code0) = fragments[type][title]
-        fragments[type][title] = (desc0 + " " + desc, code0 + "\n\n" + code)
+        fragments[type][title] = ((desc0 + " " + desc).strip(), code0 + "\n\n" + code)
 
     start = e
 
