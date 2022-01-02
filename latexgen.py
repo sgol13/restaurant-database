@@ -31,9 +31,13 @@ while start < len(text):
     code = text[d:e].strip()
 
     if type not in fragments:
-        fragments[type] = []
+        fragments[type] = {}
 
-    fragments[type].append((title, desc, code))
+    if title not in fragments[type]:
+        fragments[type][title] = (desc, code)
+    else:
+        (desc0, code0) = fragments[type][title]
+        fragments[type][title] = (desc0 + " " + desc, code0 + "\n\n" + code)
 
     start = e
 
@@ -52,7 +56,8 @@ for type in types:
 
     latex += "\\section{" + type + "}\n"
 
-    for title, desc, code in fragments[type]:
+    for title in fragments[type]:
+        (desc, code) = fragments[type][title]
         latex += "\\subsection{" + title + "}\n"
         latex += desc + "\n"
         latex += "\\begin{minted}[frame=lines, linenos, breaklines]{sql}\n" + \
