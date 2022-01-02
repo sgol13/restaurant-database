@@ -1,3 +1,9 @@
+DROP FUNCTION TotalOrderAmount
+GO
+
+--> Funkcje
+--# TotalOrderAmount(OrderID)
+--- Zwraca całkowitą cenę zamówienia biorąc pod uwagę rabaty.
 CREATE FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
 BEGIN
     RETURN (
@@ -10,3 +16,4 @@ BEGIN
     )
 END
 GO
+--<
