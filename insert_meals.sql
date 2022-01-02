@@ -1,4 +1,3 @@
-```sql
 INSERT INTO Meals (Name, SeaFood, DefaultPrice, Active)
 VALUES 
 ('Tiramisu', 0, 9.0, 1),
@@ -18,9 +17,9 @@ VALUES
 ('Woda mineralna gazowana', 0, 3.50, 1);
 
 INSERT INTO Menu (StartDate, EndDate)
-VALUES ('2021-12-17','2021-12-31'),
-('2022-01-01','2011-01-08'),
-('2022-01-09','2011-01-15');
+VALUES ('2021-12-17','2021-12-31', 1),
+('2022-01-01','2022-01-08', 1),
+('2022-01-09','2022-01-15', 1);
 
 INSERT INTO MenuItems (MenuID, MealID, Price)
 VALUES 
@@ -67,5 +66,3 @@ VALUES
 (6, 1),
 (8, 1),
 (8, 1);
-```
-

@@ -1,6 +1,6 @@
-SELECT * FROM Customers
-SELECT * FROM PrivateCustomers
-SELECT * FROM CompanyCustomers
+-- SELECT * FROM Customers
+-- SELECT * FROM PrivateCustomers
+-- SELECT * FROM CompanyCustomers
 
 INSERT INTO Customers (Email, Phone, Address, City, PostalCode, Country)
 VALUES ('urna.nunc@yahoo.couk','1-313-551-7732','432-8058 Tempor Avenue','Poznań','46-747','Poland')

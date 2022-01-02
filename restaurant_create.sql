@@ -1,5 +1,5 @@
 -- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2022-01-02 09:57:39.384
+-- Last modification date: 2022-01-02 11:30:38.749
 
 -- tables
 -- Table: CompanyCustomers
@@ -71,6 +71,7 @@ CREATE TABLE Menu (
     MenuID int  NOT NULL IDENTITY(1, 1),
     StartDate datetime  NOT NULL,
     EndDate datetime  NOT NULL,
+    Active bit  NOT NULL,
     CONSTRAINT MenuStartBeforeEnd CHECK (StartDate < EndDate),
     CONSTRAINT Menu_pk PRIMARY KEY  (MenuID)
 );
