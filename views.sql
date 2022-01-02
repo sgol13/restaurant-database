@@ -1,6 +1,6 @@
 create view CurrentOrders
 as select * from Orders
-where OrderDate >= getdate() and CompletionDate < getdate()
+where OrderDate <= getdate() and  getdate() < CompletionDate
 
 create view OrderHist
 as select * from Orders where CompletionDate <= getdate()
