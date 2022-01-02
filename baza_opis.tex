@@ -1,9 +1,7 @@
-DROP PROCEDURE AddCompanyCustomer
-GO
-
---> Procedury
---# AddCompanyCustomer
---- Dodaje firmę jako klienta.
+\section{Procedury}
+\subsection{AddCompanyCustomer}
+Dodaje firmę jako klienta.
+\begin{minted}[frame=lines, linenos]{sql}
 CREATE PROCEDURE AddCompanyCustomer(
     @Email nvarchar(64),
     @Phone nvarchar(16),
@@ -21,14 +19,10 @@ AS BEGIN
     VALUES (@@IDENTITY, @CompanyName, @NIP)
 END
 GO
---<
-
-DROP PROCEDURE AddPrivateCustomer
-GO
-
---> Procedury
---# AddPrivateCustomer
---- Dodaje osobę prywatną jako klienta.
+\end{minted}
+\subsection{AddPrivateCustomer}
+Dodaje osobę prywatną jako klienta.
+\begin{minted}[frame=lines, linenos]{sql}
 CREATE PROCEDURE AddPrivateCustomer(
     @Email nvarchar(64),
     @Phone nvarchar(16),
@@ -46,4 +40,15 @@ AS BEGIN
     VALUES (@@IDENTITY, @FirstName, @LastName)
 END
 GO
---<
+\end{minted}
+\section{Tabele}
+\subsection{Firmy}
+Przechowuje informacje o firmach: numer firmy, nazwa firmy, (opcjonalny) NIP.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE TABLE CompanyCustomers (
+    CustomerID int  NOT NULL,
+    CompanyName nvarchar(64)  NOT NULL,
+    NIP varchar(16)  NULL,
+    CONSTRAINT CompanyCustomers_pk PRIMARY KEY  (CustomerID)
+);
+\end{minted}

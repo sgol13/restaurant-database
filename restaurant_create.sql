@@ -1,14 +1,16 @@
 -- Created by Vertabelo (http://vertabelo.com)
 -- Last modification date: 2022-01-02 11:30:38.749
 
--- tables
--- Table: CompanyCustomers
+--> Tabele
+--# Firmy
+--- Przechowuje informacje o firmach: numer firmy, nazwa firmy, (opcjonalny) NIP.
 CREATE TABLE CompanyCustomers (
     CustomerID int  NOT NULL,
     CompanyName nvarchar(64)  NOT NULL,
     NIP varchar(16)  NULL,
     CONSTRAINT CompanyCustomers_pk PRIMARY KEY  (CustomerID)
 );
+--<
 
 -- Table: Constants
 CREATE TABLE Constants (
