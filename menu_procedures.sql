@@ -24,7 +24,7 @@ CREATE PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDa
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
-        RAISERROR('Menu is active', -1, -1)
+        ;THROW 25000, 'Menu is active', 1
         RETURN
     END 
 
@@ -48,13 +48,13 @@ CREATE PROCEDURE SetMenuItem(@MenuID int, @MealID int, @Price money = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
-        RAISERROR('Menu is active', -1, -1)
+        ;THROW 25000, 'Menu is active', 1
         RETURN
     END 
 
     IF (SELECT Active FROM Meals WHERE MealID = @MealID) = 0
     BEGIN
-        RAISERROR('Meal is not active', -1, -1)
+        ;THROW 25000, 'Meal is not active', 1
         RETURN
     END 
 
@@ -73,7 +73,7 @@ CREATE PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
-        RAISERROR('Menu is active', -1, -1)
+        ;THROW 25000, 'Menu is active', 1
         RETURN
     END
 

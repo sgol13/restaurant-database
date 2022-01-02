@@ -1,3 +1,0 @@
-DROP PROCEDURE IF EXISTS UpdateConstants
-DROP PROCEDURE IF EXISTS CreateOrderInvoice
-DROP PROCEDURE IF EXISTS CreateMonthlyInvoice

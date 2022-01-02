@@ -1,3 +1,6 @@
+DROP PROCEDURE UpdateConstants
+GO
+
 CREATE PROCEDURE UpdateConstants(
     @Z1 INT = NULL,
     @K1 INT = NULL,
@@ -43,20 +46,20 @@ CREATE PROCEDURE UpdateConstants(
 END
 GO
 
--- EXECUTE UpdateConstants
---    @Z1 = 123,
---    @K1 = 40;
--- GO
+DROP PROCEDURE CreateOrderInvoice
+GO
 
 CREATE PROCEDURE CreateOrderInvoice(@OrderID int)
 AS BEGIN
     IF (SELECT InvoiceID FROM Orders WHERE OrderID = @OrderID) IS NOT NULL
     BEGIN
-        RAISERROR('Order already has an invoice', -1, -1)
+        ;THROW 5200, 'Order already has an invoice', 1
+        RETURN
     END
     IF (SELECT Paid FROM Orders WHERE OrderID = @OrderID) = 0
     BEGIN
-        RAISERROR('Order hasnt been paid', -1, -1)
+        ;THROW 5200, 'Order hasnt been paid', 1
+        RETURN
     END
 
     INSERT INTO Invoices(
@@ -75,12 +78,16 @@ AS BEGIN
 END
 GO
 
+DROP PROCEDURE CreateMonthlyInvoice
+GO
+
 CREATE PROCEDURE CreateMonthlyInvoice(@CustomerID Int, @Month int, @Year int)
 AS BEGIN
     -- Last day of the month is in the past
     IF DATEFROMPARTS(@Year, @Month, DAY(EOMONTH(DATEFROMPARTS(@Year, @Month, 1)))) >= GETDATE()
     BEGIN
-        RAISERROR('The month hasnt passed yet', -1, -1)
+        ;THROW 5200, 'The month hasnt passed yet', 1
+        RETURN
     END
 
     INSERT INTO Invoices(
