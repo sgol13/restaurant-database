@@ -11,7 +11,7 @@ GO
 CREATE PROCEDURE NewMenuInProgress(@StartDate datetime, @EndDate datetime, @MenuID int OUTPUT)
 AS BEGIN
     INSERT INTO Menu(StartDate, EndDate, Active)
-    values(@StartDate, @EndDate, 0)
+    VALUES(@StartDate, @EndDate, 0)
     
     SET @MenuID = @@IDENTITY
 END
@@ -24,7 +24,7 @@ CREATE PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDa
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
-        ;THROW 25000, 'Menu is active', 1
+        ;THROW 52000, 'Menu is active', 1
         RETURN
     END 
 
@@ -48,18 +48,17 @@ CREATE PROCEDURE SetMenuItem(@MenuID int, @MealID int, @Price money = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
-        ;THROW 25000, 'Menu is active', 1
+        ;THROW 52000, 'Menu is active', 1
         RETURN
     END 
 
     IF (SELECT Active FROM Meals WHERE MealID = @MealID) = 0
     BEGIN
-        ;THROW 25000, 'Meal is not active', 1
+        ;THROW 52000, 'Meal is not active', 1
         RETURN
     END 
 
-    DECLARE @DefaultPrice money
-    SELECT @DefaultPrice = DefaultPrice FROM Meals WHERE MealID = @MealID
+    DECLARE @DefaultPrice money = (SELECT DefaultPrice FROM Meals WHERE MealID = @MealID)
 
     INSERT INTO MenuItems(MenuID, MealID, Price)
     VALUES (@MenuID, @MealID, ISNULL(@Price, @DefaultPrice))
@@ -73,7 +72,7 @@ CREATE PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
-        ;THROW 25000, 'Menu is active', 1
+        ;THROW 52000, 'Menu is active', 1
         RETURN
     END
 

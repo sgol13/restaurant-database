@@ -39,6 +39,13 @@ EXECUTE ActivateMenu
 
 GO
 
+-- Error: Menu is active
+-- EXECUTE RemoveMenuItem
+--     @MenuID = 1,
+--     @MealID = 2;
+
+GO
+
 SELECT * FROM Menu
 SELECT * FROM MenuItems
 WHERE MenuID = (SELECT MAX(MenuID) FROM Menu)
