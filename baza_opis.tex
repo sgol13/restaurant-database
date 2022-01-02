@@ -1,7 +1,7 @@
 \section{Tabele}
 \subsection{Firmy}
 Przechowuje informacje o firmach: numer firmy, nazwa firmy, (opcjonalny) NIP.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE TABLE CompanyCustomers (
     CustomerID int  NOT NULL,
     CompanyName nvarchar(64)  NOT NULL,
@@ -11,8 +11,8 @@ CREATE TABLE CompanyCustomers (
 \end{minted}
 \section{Procedury}
 \subsection{UpdateConstants(...)}
-Aktualizuje podane stałe (niezmieniając pozostałych)
-\begin{minted}[frame=lines, linenos]{sql}
+Aktualizuje podane stałe (nie zmieniając pozostałych)
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE UpdateConstants(
     @Z1 INT = NULL,
     @K1 INT = NULL,
@@ -60,7 +60,7 @@ GO
 \end{minted}
 \subsection{AddCompanyCustomer}
 Dodaje firmę jako klienta.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE AddCompanyCustomer(
     @Email nvarchar(64),
     @Phone nvarchar(16),
@@ -81,7 +81,7 @@ GO
 \end{minted}
 \subsection{AddPrivateCustomer}
 Dodaje osobę prywatną jako klienta.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE AddPrivateCustomer(
     @Email nvarchar(64),
     @Phone nvarchar(16),
@@ -102,7 +102,7 @@ GO
 \end{minted}
 \subsection{CreateOrderInvoice(OrderID)}
 Generuje fakturę w tabeli Invoices dla danego zamówienia.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE CreateOrderInvoice(@OrderID int)
 AS BEGIN
     IF (SELECT InvoiceID FROM Orders WHERE OrderID = @OrderID) IS NOT NULL
@@ -134,7 +134,7 @@ GO
 \end{minted}
 \subsection{CreateMonthlyInvoice(CustomerID, Month, Year)}
 Generuje fakturę dla danego klienta, dla danego miesiąca.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE CreateMonthlyInvoice(@CustomerID Int, @Month int, @Year int)
 AS BEGIN
     -- Last day of the month is in the past
@@ -165,7 +165,7 @@ GO
 \end{minted}
 \subsection{NewMenuInProgress(StartDate, EndData, MenuID OUTPUT)}
 Tworzy nowe nieaktywne menu.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE NewMenuInProgress(@StartDate datetime, @EndDate datetime, @MenuID int OUTPUT)
 AS BEGIN
     INSERT INTO Menu(StartDate, EndDate, Active)
@@ -177,7 +177,7 @@ GO
 \end{minted}
 \subsection{ChangeMenuDates(MenuID, StartDate, EndDate)}
 Zmienia datę niaktywnego menu.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDate datetime = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
@@ -201,7 +201,7 @@ GO
 \end{minted}
 \subsection{SetMenuItem(MenuID, MealID, Price)}
 Dodaje posiłek do nieaktywnego menu.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE SetMenuItem(@MenuID int, @MealID int, @Price money = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
@@ -225,7 +225,7 @@ GO
 \end{minted}
 \subsection{RemoveMenuItem(MenuID, MealID)}
 Usuwa posiłem z nieaktynwgo menu.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
@@ -240,8 +240,8 @@ END
 GO
 \end{minted}
 \subsection{ActivateMenu(MenuID)}
-Próbuje aktywować menu biorąc pod uwagę niepowtarzanie się posiłków i nienachodzenie dat.
-\begin{minted}[frame=lines, linenos]{sql}
+Próbuje aktywować menu biorąc pod uwagę nie powtarzanie się posiłków i nie nachodzenie dat.
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE PROCEDURE ActivateMenu(@MenuID int)
 AS BEGIN
     -- Check if not active
@@ -295,7 +295,7 @@ GO
 \section{Widoki}
 \subsection{MenusInProgress}
 Pokazuje nie aktywne menu.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE VIEW MenusInProgress AS
 SELECT MenuID FROM Menu WHERE Active = 0
 GO
@@ -303,7 +303,7 @@ GO
 \section{Funkcje}
 \subsection{TotalOrderAmount(OrderID)}
 Zwraca całkowitą cenę zamówienia biorąc pod uwagę rabaty.
-\begin{minted}[frame=lines, linenos]{sql}
+\begin{minted}[frame=lines, linenos, breaklines]{sql}
 CREATE FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
 BEGIN
     RETURN (

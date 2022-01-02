@@ -2,7 +2,7 @@ DROP PROCEDURE AddCompanyCustomer
 GO
 
 --> Procedury
---# AddCompanyCustomer
+--# AddCompanyCustomer(...)
 --- Dodaje firmę jako klienta.
 CREATE PROCEDURE AddCompanyCustomer(
     @Email nvarchar(64),
@@ -27,7 +27,7 @@ DROP PROCEDURE AddPrivateCustomer
 GO
 
 --> Procedury
---# AddPrivateCustomer
+--# AddPrivateCustomer(...)
 --- Dodaje osobę prywatną jako klienta.
 CREATE PROCEDURE AddPrivateCustomer(
     @Email nvarchar(64),

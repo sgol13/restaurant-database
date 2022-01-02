@@ -3,7 +3,7 @@ GO
 
 --> Widoki
 --# MenusInProgress
---- Pokazuje nie aktywne menu.
+--- Pokazuje nieaktywne menu.
 CREATE VIEW MenusInProgress AS
 SELECT MenuID FROM Menu WHERE Active = 0
 GO
