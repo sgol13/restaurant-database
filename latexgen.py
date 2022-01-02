@@ -7,6 +7,7 @@ for _, _, files in os.walk("."):
         if name.endswith(".sql"):
             file = open(name, "r", encoding="utf8")
             text += file.read()
+            file.close()
 
 start = 0
 
