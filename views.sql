@@ -6,18 +6,21 @@ AS SELECT * FROM Orders
 WHERE OrderDate <= GETDATE() AND GETDATE() < CompletionDate
 --<
 
+--> Widoki
 --# OrderHist
 --- Pokazuje historię zamówień.
 CREATE VIEW OrderHist
 AS SELECT * FROM Orders WHERE CompletionDate <= GETDATE()
 --<
 
+--> Widoki
 --# ReservationsToAccept
 --- Pokazuje rezerwacje, które nie zostały zaakceptowane.
 CREATE VIEW ReservationsToAccept
 AS SELECT * FROM Reservations WHERE Accepted = 0
 --<
 
+--> Widoki
 --# SeafoodOrders
 --- Pokazuje zamówienia, które zawierają dania z owocami morza.
 CREATE VIEW SeafoodOrders
