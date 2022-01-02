@@ -1,3 +1,14 @@
+\section{Tabele}
+\subsection{Firmy}
+Przechowuje informacje o firmach: numer firmy, nazwa firmy, (opcjonalny) NIP.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE TABLE CompanyCustomers (
+    CustomerID int  NOT NULL,
+    CompanyName nvarchar(64)  NOT NULL,
+    NIP varchar(16)  NULL,
+    CONSTRAINT CompanyCustomers_pk PRIMARY KEY  (CustomerID)
+);
+\end{minted}
 \section{Procedury}
 \subsection{AddCompanyCustomer}
 Dodaje firmę jako klienta.
@@ -41,14 +52,4 @@ AS BEGIN
 END
 GO
 \end{minted}
-\section{Tabele}
-\subsection{Firmy}
-Przechowuje informacje o firmach: numer firmy, nazwa firmy, (opcjonalny) NIP.
-\begin{minted}[frame=lines, linenos]{sql}
-CREATE TABLE CompanyCustomers (
-    CustomerID int  NOT NULL,
-    CompanyName nvarchar(64)  NOT NULL,
-    NIP varchar(16)  NULL,
-    CONSTRAINT CompanyCustomers_pk PRIMARY KEY  (CustomerID)
-);
-\end{minted}
+\section{Widoki}

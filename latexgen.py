@@ -38,7 +38,17 @@ while start < len(text):
 
 latex = ""
 
+types = ["Tabele", "Procedury", "Widoki"]
+
 for type in fragments:
+    if type not in types:
+        print("ZŁY TYP", type)
+        exit(1)
+
+for type in types:
+    if type not in fragments:
+        fragments[type] = []
+
     latex += "\\section{" + type + "}\n"
 
     for title, desc, code in fragments[type]:
