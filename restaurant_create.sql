@@ -36,6 +36,7 @@ CREATE TABLE Constants (
     CONSTRAINT ConstantChecks CHECK (Z1 >= 0 AND  K1 >= 0 AND  R1 >= 0 AND R1 <= 100 AND K2 >= 0 AND R2 >= 0 AND R2 <= 100 AND D1 >= 0 AND WZ >= 0 AND WK >= 0 ),
     CONSTRAINT Constants_pk PRIMARY KEY  (Date)
 );
+--<
 
 --> Tabele
 --# Customers
@@ -50,6 +51,7 @@ CREATE TABLE Customers (
     Country nvarchar(64)  NULL,
     CONSTRAINT Customers_pk PRIMARY KEY  (CustomerID)
 );
+--<
 
 --> Tabele
 --# Invoices
@@ -70,6 +72,7 @@ CREATE TABLE Invoices (
     CONSTRAINT PositiveTotalAmount CHECK (TotalAmount > 0),
     CONSTRAINT Invoices_pk PRIMARY KEY  (InvoiceID)
 );
+--<
 
 --> Tabele
 --# Meals
@@ -83,6 +86,7 @@ CREATE TABLE Meals (
     CONSTRAINT PositiveDefaultPrice CHECK (DefaultPrice > 0),
     CONSTRAINT Meals_pk PRIMARY KEY  (MealID)
 );
+--<
 
 --> Tabele
 --# Menu
@@ -95,6 +99,7 @@ CREATE TABLE Menu (
     CONSTRAINT MenuStartBeforeEnd CHECK (StartDate < EndDate),
     CONSTRAINT Menu_pk PRIMARY KEY  (MenuID)
 );
+--<
 
 --> Tabele
 --# MenuItems
@@ -106,6 +111,7 @@ CREATE TABLE MenuItems (
     CONSTRAINT PositivePrice CHECK (Price > 0),
     CONSTRAINT MenuItems_pk PRIMARY KEY  (MenuID,MealID)
 );
+--<
 
 --> Tabele
 --# OrderDetails
@@ -118,6 +124,7 @@ CREATE TABLE OrderDetails (
     CONSTRAINT PositiveMenuNumber CHECK (Number > 0),
     CONSTRAINT OrderDetails_pk PRIMARY KEY  (OrderID)
 );
+--<
 
 --> Tabele
 --# OrderDiscounts
@@ -129,6 +136,7 @@ CREATE TABLE OrderDiscounts (
     CONSTRAINT DiscountRange CHECK (Discount >= 0 AND Discount <= 1),
     CONSTRAINT OrderDiscounts_pk PRIMARY KEY  (OrderID,DiscountType)
 );
+--<
 
 --> Tabele
 --# Orders
@@ -144,6 +152,7 @@ CREATE TABLE Orders (
     CONSTRAINT OrderedBeforeCompleted CHECK (CompletionDate >= OrderDate),
     CONSTRAINT Orders_pk PRIMARY KEY  (OrderID)
 );
+--<
 
 --> Tabele
 --# PrivateCustomers
@@ -154,6 +163,7 @@ CREATE TABLE PrivateCustomers (
     LastName nvarchar(64)  NOT NULL,
     CONSTRAINT PrivateCustomers_pk PRIMARY KEY  (CustomerID)
 );
+--<
 
 --> Tabele
 --# Reservations
@@ -169,6 +179,7 @@ CREATE TABLE Reservations (
     CONSTRAINT ReservationStartBeforeEnd CHECK (StartDate < EndDate),
     CONSTRAINT Reservations_pk PRIMARY KEY  (ReservationID)
 );
+--<
 
 --> Tabele
 --# TableDetails
@@ -178,6 +189,7 @@ CREATE TABLE TableDetails (
     ReservationID int  NOT NULL,
     CONSTRAINT TableDetails_pk PRIMARY KEY  (TableID,ReservationID)
 );
+--<
 
 --> Tabele
 --# Tables
@@ -189,82 +201,108 @@ CREATE TABLE Tables (
     CONSTRAINT PositiveSeats CHECK (Seats > 0),
     CONSTRAINT Tables_pk PRIMARY KEY  (TableID)
 );
+--<
 
 --> Tabele
 --# Tables
+---
 ALTER TABLE CompanyCustomers ADD CONSTRAINT Customers_CompanyCustomers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
+--<
 
 --> Tabele
 --# Tables
+---
 ALTER TABLE PrivateCustomers ADD CONSTRAINT Customers_PrivateCustomers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
+--<
 
 --> Tabele
 --# Tables
+---
 ALTER TABLE Orders ADD CONSTRAINT Invoices_Orders
     FOREIGN KEY (InvoiceID)
     REFERENCES Invoices (InvoiceID);
+--<
 
 --> Tabele
 --# MenuItems
+---
 ALTER TABLE MenuItems ADD CONSTRAINT MenuItems_Meals
     FOREIGN KEY (MealID)
     REFERENCES Meals (MealID);
+--<
 
 --> Tabele
 --# OrderDetails
+---
 ALTER TABLE OrderDetails ADD CONSTRAINT MenuItems_OrderDetails
     FOREIGN KEY (MenuID,MealID)
     REFERENCES MenuItems (MenuID,MealID);
+--<
 
 --> Tabele
 --# MenuItems
+---
 ALTER TABLE MenuItems ADD CONSTRAINT Menu_MenuItems
     FOREIGN KEY (MenuID)
     REFERENCES Menu (MenuID);
+--<
 
 --> Tabele
 --# Orders
+---
 ALTER TABLE Orders ADD CONSTRAINT Order_Reservations
     FOREIGN KEY (ReservationID)
     REFERENCES Reservations (ReservationID);
+--<
 
 --> Tabele
 --# OrderDiscounts
+---
 ALTER TABLE OrderDiscounts ADD CONSTRAINT OrdersDiscounts_Orders
     FOREIGN KEY (OrderID)
     REFERENCES Orders (OrderID);
+--<
 
 --> Tabele
 --# Orders
+---
 ALTER TABLE Orders ADD CONSTRAINT Orders_Customers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
+--<
 
 --> Tabele
 --# OrderDetails
+---
 ALTER TABLE OrderDetails ADD CONSTRAINT Orders_OrderDetails
     FOREIGN KEY (OrderID)
     REFERENCES Orders (OrderID);
+--<
 
 --> Tabele
 --# Reservations
+---
 ALTER TABLE Reservations ADD CONSTRAINT Reservations_Customers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
+--<
 
 --> Tabele
 --# TableDetails
+---
 ALTER TABLE TableDetails ADD CONSTRAINT Reservations_TableDetails
     FOREIGN KEY (ReservationID)
     REFERENCES Reservations (ReservationID);
+--<
 
 --> Tabele
 --# TableDetails
+---
 ALTER TABLE TableDetails ADD CONSTRAINT TableDetails_Tables
     FOREIGN KEY (TableID)
     REFERENCES Tables (TableID);
-
+--<
