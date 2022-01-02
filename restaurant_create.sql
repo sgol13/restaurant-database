@@ -1,5 +1,5 @@
 -- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2021-12-20 14:37:44.175
+-- Last modification date: 2022-01-02 09:57:39.384
 
 -- tables
 -- Table: CompanyCustomers
@@ -39,9 +39,19 @@ CREATE TABLE Customers (
 
 -- Table: Invoices
 CREATE TABLE Invoices (
-    InvoiceID int  NOT NULL IDENTITY(1, 1),
+    InvoiceID varchar(16)  NOT NULL,
     Date datetime  NOT NULL,
-    Document varbinary(max)  NOT NULL,
+    TotalAmount money  NOT NULL,
+    FirstName nvarchar(64)  NULL,
+    LastName nvarchar(64)  NULL,
+    CompanyName nvarchar(64)  NULL,
+    Email nvarchar(64)  NULL,
+    Phone varchar(16)  NULL,
+    Address nvarchar(64)  NULL,
+    City nvarchar(64)  NULL,
+    PostalCode varchar(16)  NULL,
+    Country nvarchar(64)  NULL,
+    CONSTRAINT PositiveTotalAmount CHECK (TotalAmount > 0),
     CONSTRAINT Invoices_pk PRIMARY KEY  (InvoiceID)
 );
 
@@ -51,6 +61,8 @@ CREATE TABLE Meals (
     Name nvarchar(64)  NOT NULL,
     SeaFood bit  NOT NULL,
     DefaultPrice money  NOT NULL,
+    Active bit  NOT NULL,
+    CONSTRAINT PositiveDefaultPrice CHECK (DefaultPrice > 0),
     CONSTRAINT Meals_pk PRIMARY KEY  (MealID)
 );
 
@@ -68,6 +80,7 @@ CREATE TABLE MenuItems (
     MenuID int  NOT NULL,
     MealID int  NOT NULL,
     Price money  NOT NULL,
+    CONSTRAINT PositivePrice CHECK (Price > 0),
     CONSTRAINT MenuItems_pk PRIMARY KEY  (MenuID,MealID)
 );
 
@@ -86,6 +99,7 @@ CREATE TABLE OrderDiscounts (
     OrderID int  NOT NULL,
     Discount decimal(5,2)  NOT NULL,
     DiscountType int  NOT NULL,
+    CONSTRAINT DiscountRange CHECK (Discount >= 0 AND Discount <= 1),
     CONSTRAINT OrderDiscounts_pk PRIMARY KEY  (OrderID,DiscountType)
 );
 
@@ -97,7 +111,7 @@ CREATE TABLE Orders (
     OrderDate datetime  NOT NULL,
     CompletionDate datetime  NULL,
     Paid bit  NOT NULL,
-    InvoiceID int  NULL,
+    InvoiceID varchar(16)  NULL,
     CONSTRAINT OrderedBeforeCompleted CHECK (CompletionDate >= OrderDate),
     CONSTRAINT Orders_pk PRIMARY KEY  (OrderID)
 );
@@ -134,7 +148,8 @@ CREATE TABLE TableDetails (
 CREATE TABLE Tables (
     TableID int  NOT NULL IDENTITY(1, 1),
     Seats int  NOT NULL,
-    CONSTRAINT PositiveSeatCount CHECK (Seats > 0),
+    Active bit  NOT NULL,
+    CONSTRAINT PositiveSeats CHECK (Seats > 0),
     CONSTRAINT Tables_pk PRIMARY KEY  (TableID)
 );
 
