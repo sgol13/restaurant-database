@@ -4,6 +4,7 @@
 CREATE VIEW CurrentOrders
 AS SELECT * FROM Orders
 WHERE OrderDate <= GETDATE() AND GETDATE() < CompletionDate
+GO
 --<
 
 --> Widoki
@@ -11,6 +12,7 @@ WHERE OrderDate <= GETDATE() AND GETDATE() < CompletionDate
 --- Pokazuje historię zamówień.
 CREATE VIEW OrderHist
 AS SELECT * FROM Orders WHERE CompletionDate <= GETDATE()
+GO
 --<
 
 --> Widoki
@@ -18,6 +20,7 @@ AS SELECT * FROM Orders WHERE CompletionDate <= GETDATE()
 --- Pokazuje rezerwacje, które nie zostały zaakceptowane.
 CREATE VIEW ReservationsToAccept
 AS SELECT * FROM Reservations WHERE Accepted = 0
+GO
 --<
 
 --> Widoki
@@ -30,4 +33,5 @@ AS SELECT *
     INNER JOIN MenuItems MI ON OD.MenuID = MI.MenuID AND OD.MealID = MI.MealID
     INNER JOIN Meals M ON M.MealID = MI.MealID
 WHERE SeaFood = 1
+GO
 --<
