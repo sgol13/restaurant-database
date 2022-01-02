@@ -8,7 +8,7 @@ CREATE TABLE CompanyCustomers (
     CustomerID int  NOT NULL,
     CompanyName nvarchar(64)  NOT NULL,
     NIP varchar(16)  NULL,
-    CONSTRAINT CompanyCustomers_pk PRIMARY KEY  (CustomerID)
+    CONSTRAINT CompanyCustomers_pk PRIMARY KEY (CustomerID)
 );
 --<
 

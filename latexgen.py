@@ -27,13 +27,22 @@ while start < len(text):
     d = text.find("\n", c)
     desc = text[c+3:d].strip()
 
+    while d + 1 == text.find("---", d):
+        d1 = text.find("\n", d+1)
+        desc += "\\\\\\indent{}" + text[d+4:d1].strip()
+        d = d1
+
     e = text.find("--<", d)
     code = text[d:e].strip()
 
     if type not in fragments:
-        fragments[type] = []
+        fragments[type] = {}
 
-    fragments[type].append((title, desc, code))
+    if title not in fragments[type]:
+        fragments[type][title] = (desc, code)
+    else:
+        (desc0, code0) = fragments[type][title]
+        fragments[type][title] = (desc0 + " " + desc, code0 + "\n\n" + code)
 
     start = e
 
@@ -52,7 +61,8 @@ for type in types:
 
     latex += "\\section{" + type + "}\n"
 
-    for title, desc, code in fragments[type]:
+    for title in fragments[type]:
+        (desc, code) = fragments[type][title]
         latex += "\\subsection{" + title + "}\n"
         latex += desc + "\n"
         latex += "\\begin{minted}[frame=lines, linenos, breaklines]{sql}\n" + \

@@ -30,7 +30,7 @@ GO
 
 --> Procedury
 --# ChangeMenuDates(MenuID, StartDate, EndDate)
---- Zmienia datę niaktywnego menu.
+--- Zmienia daty niaktywnego menu.
 CREATE PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDate datetime = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
@@ -86,7 +86,7 @@ GO
 
 --> Procedury
 --# RemoveMenuItem(MenuID, MealID)
---- Usuwa posiłem z nieaktynwgo menu.
+--- Usuwa posiłek z nieaktynego menu.
 CREATE PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
@@ -106,7 +106,7 @@ GO
 
 --> Procedury
 --# ActivateMenu(MenuID)
---- Próbuje aktywować menu biorąc pod uwagę nie powtarzanie się posiłków i nie nachodzenie dat.
+--- Próbuje aktywować menu biorąc pod uwagę niepowtarzanie się posiłków i nienachodzenie dat.
 CREATE PROCEDURE ActivateMenu(@MenuID int)
 AS BEGIN
     -- Check if not active
@@ -116,7 +116,7 @@ AS BEGIN
         RETURN
     END
 
-    -- Check if date do not overlap/ there is a gap
+    -- Check if dates do not overlap
     DECLARE @StartDate datetime = (SELECT StartDate FROM Menu WHERE MenuID = @MenuID)
     DECLARE @LastMenuDate datetime = (SELECT MAX(EndDate) FROM Menu WHERE Active = 1)
     
@@ -126,7 +126,7 @@ AS BEGIN
         RETURN
     END
 
-    -- Check if there menu items are legal
+    -- Check if the menu items are legal
     DECLARE @Count int
     DECLARE @NotChangedCount int
 

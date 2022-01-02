@@ -3,7 +3,7 @@ GO
 
 --> Procedury
 --# UpdateConstants(...)
---- Aktualizuje podane stałe (nie zmieniając pozostałych)
+--- Aktualizuje podane stałe (nie zmieniając pozostałych).
 CREATE PROCEDURE UpdateConstants(
     @Z1 INT = NULL,
     @K1 INT = NULL,
