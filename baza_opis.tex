@@ -10,6 +10,54 @@ CREATE TABLE CompanyCustomers (
 );
 \end{minted}
 \section{Procedury}
+\subsection{UpdateConstants(...)}
+Aktualizuje podane stałe (niezmieniając pozostałych)
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE PROCEDURE UpdateConstants(
+    @Z1 INT = NULL,
+    @K1 INT = NULL,
+    @R1 INT = NULL,
+    @K2 INT = NULL,
+    @R2 INT = NULL,
+    @D1 INT = NULL,
+    @WZ INT = NULL,
+    @WK INT = NULL
+) AS BEGIN
+    DECLARE @PREV_Z1 INT
+    DECLARE @PREV_K1 INT
+    DECLARE @PREV_R1 INT
+    DECLARE @PREV_K2 INT
+    DECLARE @PREV_R2 INT
+    DECLARE @PREV_D1 INT
+    DECLARE @PREV_WZ INT
+    DECLARE @PREV_WK INT
+
+    SELECT 
+        @PREV_Z1 = Z1,
+        @PREV_K1 = K1,
+        @PREV_R1 = R1,
+        @PREV_K2 = K2,
+        @PREV_R2 = R2,
+        @PREV_D1 = D1,
+        @PREV_WZ = WZ,
+        @PREV_WK = WK
+    FROM Constants
+
+    INSERT INTO Constants(Date, Z1, K1, R1, K2, R2, D1, WZ, WK)
+    VALUES (
+        GETDATE(),
+        ISNULL(@Z1, @PREV_Z1),
+        ISNULL(@K1, @PREV_K1),
+        ISNULL(@R1, @PREV_R1),
+        ISNULL(@K2, @PREV_K2),
+        ISNULL(@R2, @PREV_R2),
+        ISNULL(@D1, @PREV_D1),
+        ISNULL(@WZ, @PREV_WZ),
+        ISNULL(@WK, @PREV_WK)
+    )
+END
+GO
+\end{minted}
 \subsection{AddCompanyCustomer}
 Dodaje firmę jako klienta.
 \begin{minted}[frame=lines, linenos]{sql}
@@ -52,4 +100,220 @@ AS BEGIN
 END
 GO
 \end{minted}
+\subsection{CreateOrderInvoice(OrderID)}
+Generuje fakturę w tabeli Invoices dla danego zamówienia.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE PROCEDURE CreateOrderInvoice(@OrderID int)
+AS BEGIN
+    IF (SELECT InvoiceID FROM Orders WHERE OrderID = @OrderID) IS NOT NULL
+    BEGIN
+        ;THROW 5200, 'Order already has an invoice', 1
+        RETURN
+    END
+    IF (SELECT Paid FROM Orders WHERE OrderID = @OrderID) = 0
+    BEGIN
+        ;THROW 5200, 'Order hasnt been paid', 1
+        RETURN
+    END
+
+    INSERT INTO Invoices(
+        Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
+    )
+    SELECT GETDATE(), dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
+                Email, Phone, Address, City, PostalCode, Country 
+    FROM Orders
+        JOIN Customers ON Customers.CustomerID = Orders.OrderID
+        LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
+        LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
+    WHERE Orders.OrderID = @OrderID;
+
+    UPDATE Orders SET InvoiceID = @@IDENTITY
+    WHERE OrderID = @OrderID
+END
+GO
+\end{minted}
+\subsection{CreateMonthlyInvoice(CustomerID, Month, Year)}
+Generuje fakturę dla danego klienta, dla danego miesiąca.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE PROCEDURE CreateMonthlyInvoice(@CustomerID Int, @Month int, @Year int)
+AS BEGIN
+    -- Last day of the month is in the past
+    IF DATEFROMPARTS(@Year, @Month, DAY(EOMONTH(DATEFROMPARTS(@Year, @Month, 1)))) >= GETDATE()
+    BEGIN
+        ;THROW 5200, 'The month hasnt passed yet', 1
+        RETURN
+    END
+
+    INSERT INTO Invoices(
+        Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
+    )
+    SELECT GETDATE(), SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
+            MAX(CompanyName), MAX(Email), MAX(Phone), MAX(Address), MAX(City), MAX(PostalCode), MAX(Country) 
+    FROM Customers
+        LEFT JOIN Orders ON Orders.CustomerID = Customers.CustomerID AND Orders.InvoiceID IS NULL
+                            AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
+        LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
+        LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
+    WHERE Customers.CustomerID = @CustomerID
+    GROUP BY Customers.CustomerID
+
+    UPDATE Orders SET InvoiceID = @@IDENTITY
+    WHERE Orders.CustomerID = @CustomerID AND Orders.InvoiceID IS NULL
+            AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
+END
+GO
+\end{minted}
+\subsection{NewMenuInProgress(StartDate, EndData, MenuID OUTPUT)}
+Tworzy nowe nieaktywne menu.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE PROCEDURE NewMenuInProgress(@StartDate datetime, @EndDate datetime, @MenuID int OUTPUT)
+AS BEGIN
+    INSERT INTO Menu(StartDate, EndDate, Active)
+    VALUES(@StartDate, @EndDate, 0)
+    
+    SET @MenuID = @@IDENTITY
+END
+GO
+\end{minted}
+\subsection{ChangeMenuDates(MenuID, StartDate, EndDate)}
+Zmienia datę niaktywnego menu.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDate datetime = NULL)
+AS BEGIN
+    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
+    BEGIN
+        ;THROW 52000, 'Menu is active', 1
+        RETURN
+    END 
+
+    DECLARE @PrevStartDate datetime
+    DECLARE @PrevEndDate datetime
+
+    SELECT @PrevStartDate = StartDate, @PrevEndDate = EndDate 
+    FROM Menu WHERE MenuID = @MenuID
+
+    UPDATE Menu
+    SET StartDate = ISNULL(@StartDate, @PrevStartDate),
+        EndDate = ISNULL(@EndDate, @PrevEndDate)
+    WHERE MenuID = @MenuID
+END
+GO
+\end{minted}
+\subsection{SetMenuItem(MenuID, MealID, Price)}
+Dodaje posiłek do nieaktywnego menu.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE PROCEDURE SetMenuItem(@MenuID int, @MealID int, @Price money = NULL)
+AS BEGIN
+    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
+    BEGIN
+        ;THROW 52000, 'Menu is active', 1
+        RETURN
+    END 
+
+    IF (SELECT Active FROM Meals WHERE MealID = @MealID) = 0
+    BEGIN
+        ;THROW 52000, 'Meal is not active', 1
+        RETURN
+    END 
+
+    DECLARE @DefaultPrice money = (SELECT DefaultPrice FROM Meals WHERE MealID = @MealID)
+
+    INSERT INTO MenuItems(MenuID, MealID, Price)
+    VALUES (@MenuID, @MealID, ISNULL(@Price, @DefaultPrice))
+END
+GO
+\end{minted}
+\subsection{RemoveMenuItem(MenuID, MealID)}
+Usuwa posiłem z nieaktynwgo menu.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
+AS BEGIN
+    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
+    BEGIN
+        ;THROW 52000, 'Menu is active', 1
+        RETURN
+    END
+
+    DELETE MenuItems
+    WHERE MenuID = @MenuID AND MealID = @MealID
+END
+GO
+\end{minted}
+\subsection{ActivateMenu(MenuID)}
+Próbuje aktywować menu biorąc pod uwagę niepowtarzanie się posiłków i nienachodzenie dat.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE PROCEDURE ActivateMenu(@MenuID int)
+AS BEGIN
+    -- Check if not active
+    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
+    BEGIN
+        ;THROW 52000, 'Menu is active', 1
+        RETURN
+    END
+
+    -- Check if date do not overlap/ there is a gap
+    DECLARE @StartDate datetime = (SELECT StartDate FROM Menu WHERE MenuID = @MenuID)
+    DECLARE @LastMenuDate datetime = (SELECT MAX(EndDate) FROM Menu WHERE Active = 1)
+    
+    if DATEDIFF(day, @LastMenuDate, @StartDate) <= 0
+    BEGIN
+        ;THROW 52000, 'Overlapping dates', 1
+        RETURN
+    END
+
+    -- Check if there menu items are legal
+    DECLARE @Count int
+    DECLARE @NotChangedCount int
+
+    SELECT @Count = Count(MealID)
+    FROM Menu
+    JOIN MenuItems ON MenuItems.MenuID = Menu.MenuID
+    WHERE Menu.MenuID = @MenuID
+
+    SELECT @NotChangedCount = Count(MealID)
+    FROM Menu 
+    JOIN MenuItems ON MenuItems.MenuID = Menu.MenuID
+    WHERE Menu.MenuID = @MenuID AND MenuItems.MealID IN (
+        SELECT MI2.MealID
+        FROM MenuItems AS MI2
+        JOIN Menu AS M2 ON M2.MenuID = MI2.MenuID
+        WHERE M2.Active = 1 AND DATEDIFF(day, M2.EndDate, Menu.StartDate) < 14
+    )
+
+    IF (@NotChangedCount * 2) > @Count
+    BEGIN
+        ;THROW 52000, 'Menu is not legal', 1
+        RETURN
+    END
+
+    -- Everything is correct
+    UPDATE Menu SET Active = 1
+    WHERE MenuID = @MenuID
+END
+GO
+\end{minted}
 \section{Widoki}
+\subsection{MenusInProgress}
+Pokazuje nie aktywne menu.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE VIEW MenusInProgress AS
+SELECT MenuID FROM Menu WHERE Active = 0
+GO
+\end{minted}
+\section{Funkcje}
+\subsection{TotalOrderAmount(OrderID)}
+Zwraca całkowitą cenę zamówienia biorąc pod uwagę rabaty.
+\begin{minted}[frame=lines, linenos]{sql}
+CREATE FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
+BEGIN
+    RETURN (
+        SELECT SUM(OD.Number * MI.Price) * (1-SUM(Discounts.Discount)) FROM Orders
+        JOIN OrderDetails AS OD ON OD.OrderID = Orders.OrderID
+        JOIN MenuItems AS MI ON MI.MenuID = OD.MenuID AND MI.MealID = OD.MealID
+        JOIN OrderDiscounts AS Discounts ON Discounts.OrderID = Orders.OrderID
+        WHERE Orders.OrderID = @OrderID
+        GROUP BY Orders.OrderID
+    )
+END
+GO
+\end{minted}

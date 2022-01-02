@@ -1,13 +1,20 @@
 DROP VIEW MenusInProgress
 GO
 
+--> Widoki
+--# MenusInProgress
+--- Pokazuje nie aktywne menu.
 CREATE VIEW MenusInProgress AS
 SELECT MenuID FROM Menu WHERE Active = 0
 GO
+--<
 
 DROP PROCEDURE NewMenuInProgress
 GO
 
+--> Procedury
+--# NewMenuInProgress(StartDate, EndData, MenuID OUTPUT)
+--- Tworzy nowe nieaktywne menu.
 CREATE PROCEDURE NewMenuInProgress(@StartDate datetime, @EndDate datetime, @MenuID int OUTPUT)
 AS BEGIN
     INSERT INTO Menu(StartDate, EndDate, Active)
@@ -16,10 +23,14 @@ AS BEGIN
     SET @MenuID = @@IDENTITY
 END
 GO
+--<
 
 DROP PROCEDURE ChangeMenuDates
 GO
 
+--> Procedury
+--# ChangeMenuDates(MenuID, StartDate, EndDate)
+--- Zmienia datę niaktywnego menu.
 CREATE PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDate datetime = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
@@ -40,10 +51,14 @@ AS BEGIN
     WHERE MenuID = @MenuID
 END
 GO
+--<
 
 DROP PROCEDURE SetMenuItem
 GO
 
+--> Procedury
+--# SetMenuItem(MenuID, MealID, Price)
+--- Dodaje posiłek do nieaktywnego menu.
 CREATE PROCEDURE SetMenuItem(@MenuID int, @MealID int, @Price money = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
@@ -64,10 +79,14 @@ AS BEGIN
     VALUES (@MenuID, @MealID, ISNULL(@Price, @DefaultPrice))
 END
 GO
+--<
 
 DROP PROCEDURE RemoveMenuItem
 GO
 
+--> Procedury
+--# RemoveMenuItem(MenuID, MealID)
+--- Usuwa posiłem z nieaktynwgo menu.
 CREATE PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
@@ -80,10 +99,14 @@ AS BEGIN
     WHERE MenuID = @MenuID AND MealID = @MealID
 END
 GO
+--<
 
 DROP PROCEDURE ActivateMenu
 GO
 
+--> Procedury
+--# ActivateMenu(MenuID)
+--- Próbuje aktywować menu biorąc pod uwagę niepowtarzanie się posiłków i nienachodzenie dat.
 CREATE PROCEDURE ActivateMenu(@MenuID int)
 AS BEGIN
     -- Check if not active
@@ -133,3 +156,4 @@ AS BEGIN
     WHERE MenuID = @MenuID
 END
 GO
+--<
