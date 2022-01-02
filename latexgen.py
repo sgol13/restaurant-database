@@ -54,7 +54,7 @@ for type in types:
     for title, desc, code in fragments[type]:
         latex += "\\subsection{" + title + "}\n"
         latex += desc + "\n"
-        latex += "\\begin{minted}[frame=lines, linenos]{sql}\n" + \
+        latex += "\\begin{minted}[frame=lines, linenos, breaklines]{sql}\n" + \
             code + "\n\\end{minted}\n"
 
 print(latex)
