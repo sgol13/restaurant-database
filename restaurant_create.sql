@@ -12,7 +12,17 @@ CREATE TABLE CompanyCustomers (
 );
 --<
 
--- Table: Constants
+--> Tabele
+--# Constants
+--- Zawiera informacje o wartościach stałych potrzebnych do wyznaczenia rabatów w danym okresie: 
+--- Z1 - minimalna liczba zamówień dla rabatu 1,  
+--- K1 - minimalna wydana kwota dla rabatu 1, 
+--- R1 - procent zniżki na wszystkie zamówienia po udzieleniu rabatu 1, 
+--- K2 - minimalna wydana kwota dla rabatu 2, 
+--- R2 - procent zniżki na zamówienie po udzieleniu rabatu 2, 
+--- D1 - maksymalna liczba dni na wykorzystanie rabatu 2 począwszy od dnia przyznania zniżki, 
+--- WZ - minimalna wartość zamówienia w przypadku wypełniania formularza do rezerwacji, 
+--- WK - minimalna ilość wykonanych zamówień w przypadku wypełniania formularza do rezerwacji.
 CREATE TABLE Constants (
     Date datetime  NOT NULL,
     Z1 int  NOT NULL,
@@ -27,7 +37,9 @@ CREATE TABLE Constants (
     CONSTRAINT Constants_pk PRIMARY KEY  (Date)
 );
 
--- Table: Customers
+--> Tabele
+--# Customers
+--- Przechowuje informacje wspólne o klientach indywidualnych i firmach. Informacje adresowe są opcjonalne (w przypadku kiedy są potrzebne, można je uzupełnić później).
 CREATE TABLE Customers (
     CustomerID int  NOT NULL IDENTITY(1, 1),
     Email nvarchar(64)  NULL,
@@ -39,7 +51,9 @@ CREATE TABLE Customers (
     CONSTRAINT Customers_pk PRIMARY KEY  (CustomerID)
 );
 
--- Table: Invoices
+--> Tabele
+--# Invoices
+--- Zawiera informacje o fakturach: numer faktury, data wystawienia faktury, łączna kwota oraz dane klienta.
 CREATE TABLE Invoices (
     InvoiceID varchar(16)  NOT NULL,
     Date datetime  NOT NULL,
@@ -57,7 +71,9 @@ CREATE TABLE Invoices (
     CONSTRAINT Invoices_pk PRIMARY KEY  (InvoiceID)
 );
 
--- Table: Meals
+--> Tabele
+--# Meals
+--- Lista dań możliwych do użycia podczas tworzenia menu. Zawiera informację o domyślnej cenie oraz oznaczenie dań z owocami morza.
 CREATE TABLE Meals (
     MealID int  NOT NULL IDENTITY(1, 1),
     Name nvarchar(64)  NOT NULL,
@@ -68,7 +84,9 @@ CREATE TABLE Meals (
     CONSTRAINT Meals_pk PRIMARY KEY  (MealID)
 );
 
--- Table: Menu
+--> Tabele
+--# Menu
+--- Przechowuje informacje o menu dostępnych w różnych okresach.
 CREATE TABLE Menu (
     MenuID int  NOT NULL IDENTITY(1, 1),
     StartDate datetime  NOT NULL,
@@ -78,7 +96,9 @@ CREATE TABLE Menu (
     CONSTRAINT Menu_pk PRIMARY KEY  (MenuID)
 );
 
--- Table: MenuItems
+--> Tabele
+--# MenuItems
+--- Zawiera wszystkie posiłki dostępne w co najmniej jednym z menu wraz z ich cenami.
 CREATE TABLE MenuItems (
     MenuID int  NOT NULL,
     MealID int  NOT NULL,
@@ -87,7 +107,9 @@ CREATE TABLE MenuItems (
     CONSTRAINT MenuItems_pk PRIMARY KEY  (MenuID,MealID)
 );
 
--- Table: OrderDetails
+--> Tabele
+--# OrderDetails
+--- Zawiera wszystkie pozycje ze wszystkich złożonych zamówień. Każda pozycja jest przypisana do dokładnie jednego zamówienia i może obejmować kilka sztuk tego samego produktu.
 CREATE TABLE OrderDetails (
     OrderID int  NOT NULL,
     Number int  NOT NULL,
@@ -97,7 +119,9 @@ CREATE TABLE OrderDetails (
     CONSTRAINT OrderDetails_pk PRIMARY KEY  (OrderID)
 );
 
--- Table: OrderDiscounts
+--> Tabele
+--# OrderDiscounts
+--- Zawiera listę udzielonych rabatów. Każdy rabat jest przypisany do dokładnie jednego zamówienia.
 CREATE TABLE OrderDiscounts (
     OrderID int  NOT NULL,
     Discount decimal(5,2)  NOT NULL,
@@ -106,7 +130,9 @@ CREATE TABLE OrderDiscounts (
     CONSTRAINT OrderDiscounts_pk PRIMARY KEY  (OrderID,DiscountType)
 );
 
--- Table: Orders
+--> Tabele
+--# Orders
+--- Lista złożonych zamówień wraz z informacją o ich statusie.
 CREATE TABLE Orders (
     OrderID int  NOT NULL IDENTITY(1, 1),
     CustomerID int  NOT NULL,
@@ -119,7 +145,9 @@ CREATE TABLE Orders (
     CONSTRAINT Orders_pk PRIMARY KEY  (OrderID)
 );
 
--- Table: PrivateCustomers
+--> Tabele
+--# PrivateCustomers
+--- Przechowuje informacje o klientach indywidualnych: imię i nazwisko
 CREATE TABLE PrivateCustomers (
     CustomerID int  NOT NULL,
     FirstName nvarchar(64)  NOT NULL,
@@ -127,7 +155,9 @@ CREATE TABLE PrivateCustomers (
     CONSTRAINT PrivateCustomers_pk PRIMARY KEY  (CustomerID)
 );
 
--- Table: Reservations
+--> Tabele
+--# Reservations
+--- Przechowuje listę rezerwacji stolików.
 CREATE TABLE Reservations (
     ReservationID int  NOT NULL IDENTITY(1, 1),
     StartDate datetime  NOT NULL,
@@ -140,14 +170,18 @@ CREATE TABLE Reservations (
     CONSTRAINT Reservations_pk PRIMARY KEY  (ReservationID)
 );
 
--- Table: TableDetails
+--> Tabele
+--# TableDetails
+--- Zawiera szczegóły rezerwacji poszczególnych stolików (przypisanie stolika do rezerwacji)
 CREATE TABLE TableDetails (
     TableID int  NOT NULL,
     ReservationID int  NOT NULL,
     CONSTRAINT TableDetails_pk PRIMARY KEY  (TableID,ReservationID)
 );
 
--- Table: Tables
+--> Tabele
+--# Tables
+--- Lista stolików dostępnych w restauracji.
 CREATE TABLE Tables (
     TableID int  NOT NULL IDENTITY(1, 1),
     Seats int  NOT NULL,
@@ -156,71 +190,81 @@ CREATE TABLE Tables (
     CONSTRAINT Tables_pk PRIMARY KEY  (TableID)
 );
 
--- foreign keys
--- Reference: Customers_CompanyCustomers (table: CompanyCustomers)
+--> Tabele
+--# Tables
 ALTER TABLE CompanyCustomers ADD CONSTRAINT Customers_CompanyCustomers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
 
--- Reference: Customers_PrivateCustomers (table: PrivateCustomers)
+--> Tabele
+--# Tables
 ALTER TABLE PrivateCustomers ADD CONSTRAINT Customers_PrivateCustomers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
 
--- Reference: Invoices_Orders (table: Orders)
+--> Tabele
+--# Tables
 ALTER TABLE Orders ADD CONSTRAINT Invoices_Orders
     FOREIGN KEY (InvoiceID)
     REFERENCES Invoices (InvoiceID);
 
--- Reference: MenuItems_Meals (table: MenuItems)
+--> Tabele
+--# MenuItems
 ALTER TABLE MenuItems ADD CONSTRAINT MenuItems_Meals
     FOREIGN KEY (MealID)
     REFERENCES Meals (MealID);
 
--- Reference: MenuItems_OrderDetails (table: OrderDetails)
+--> Tabele
+--# OrderDetails
 ALTER TABLE OrderDetails ADD CONSTRAINT MenuItems_OrderDetails
     FOREIGN KEY (MenuID,MealID)
     REFERENCES MenuItems (MenuID,MealID);
 
--- Reference: Menu_MenuItems (table: MenuItems)
+--> Tabele
+--# MenuItems
 ALTER TABLE MenuItems ADD CONSTRAINT Menu_MenuItems
     FOREIGN KEY (MenuID)
     REFERENCES Menu (MenuID);
 
--- Reference: Order_Reservations (table: Orders)
+--> Tabele
+--# Orders
 ALTER TABLE Orders ADD CONSTRAINT Order_Reservations
     FOREIGN KEY (ReservationID)
     REFERENCES Reservations (ReservationID);
 
--- Reference: OrdersDiscounts_Orders (table: OrderDiscounts)
+--> Tabele
+--# OrderDiscounts
 ALTER TABLE OrderDiscounts ADD CONSTRAINT OrdersDiscounts_Orders
     FOREIGN KEY (OrderID)
     REFERENCES Orders (OrderID);
 
--- Reference: Orders_Customers (table: Orders)
+--> Tabele
+--# Orders
 ALTER TABLE Orders ADD CONSTRAINT Orders_Customers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
 
--- Reference: Orders_OrderDetails (table: OrderDetails)
+--> Tabele
+--# OrderDetails
 ALTER TABLE OrderDetails ADD CONSTRAINT Orders_OrderDetails
     FOREIGN KEY (OrderID)
     REFERENCES Orders (OrderID);
 
--- Reference: Reservations_Customers (table: Reservations)
+--> Tabele
+--# Reservations
 ALTER TABLE Reservations ADD CONSTRAINT Reservations_Customers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
 
--- Reference: Reservations_TableDetails (table: TableDetails)
+--> Tabele
+--# TableDetails
 ALTER TABLE TableDetails ADD CONSTRAINT Reservations_TableDetails
     FOREIGN KEY (ReservationID)
     REFERENCES Reservations (ReservationID);
 
--- Reference: TableDetails_Tables (table: TableDetails)
+--> Tabele
+--# TableDetails
 ALTER TABLE TableDetails ADD CONSTRAINT TableDetails_Tables
     FOREIGN KEY (TableID)
     REFERENCES Tables (TableID);
-
--- End of file.
 
