@@ -50,8 +50,14 @@ GO
 
 CREATE PROCEDURE CreateOrderInvoice(@OrderID int)
 AS BEGIN
-    -- TODO Check if order already has an invoice
-    -- TODO Check if order is paid
+    IF (SELECT InvoiceID FROM Orders WHERE OrderID = @OrderID) IS NOT NULL
+    BEGIN
+        RAISERROR('Order already has an invoice', -1, -1)
+    END
+    IF (SELECT Paid FROM Orders WHERE OrderID = @OrderID) = 0
+    BEGIN
+        RAISERROR('Order hasnt been paid', -1, -1)
+    END
 
     INSERT INTO Invoices(
         Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
@@ -71,7 +77,11 @@ GO
 
 CREATE PROCEDURE CreateMonthlyInvoice(@CustomerID Int, @Month int, @Year int)
 AS BEGIN
-    -- TODO Check if month and year are correct
+    -- Last day of the month is in the past
+    IF DATEFROMPARTS(@Year, @Month, DAY(EOMONTH(DATEFROMPARTS(@Year, @Month, 1)))) >= GETDATE()
+    BEGIN
+        RAISERROR('The month hasnt passed yet', -1, -1)
+    END
 
     INSERT INTO Invoices(
         Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
