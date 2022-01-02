@@ -27,6 +27,11 @@ while start < len(text):
     d = text.find("\n", c)
     desc = text[c+3:d].strip()
 
+    while d + 1 == text.find("---", d):
+        d1 = text.find("\n", d+1)
+        desc += "\\\\\\indent{}" + text[d+4:d1].strip()
+        d = d1
+
     e = text.find("--<", d)
     code = text[d:e].strip()
 
