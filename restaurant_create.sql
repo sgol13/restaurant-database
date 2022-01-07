@@ -58,6 +58,7 @@ CREATE TABLE Customers (
 --- Zawiera informacje o fakturach: numer faktury, data wystawienia faktury, łączna kwota oraz dane klienta.
 CREATE TABLE Invoices (
     InvoiceID varchar(16)  NOT NULL,
+    CustomerID int NOT NULL,
     Date datetime  NOT NULL,
     TotalAmount money  NOT NULL,
     FirstName nvarchar(64)  NULL,
@@ -287,6 +288,13 @@ ALTER TABLE OrderDetails ADD CONSTRAINT Orders_OrderDetails
 --# Reservations
 ---
 ALTER TABLE Reservations ADD CONSTRAINT Reservations_Customers
+    FOREIGN KEY (CustomerID)
+    REFERENCES Customers (CustomerID);
+--<
+
+--> Tabele
+-- # Invoices
+ALTER TABLE Invoices ADD CONSTRAINT Invoices_Customers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
 --<
