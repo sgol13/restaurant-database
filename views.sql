@@ -36,11 +36,12 @@ WHERE SeaFood = 1
 GO
 --<
 
+
 --> Widoki
---# CurrectConstants
+--# CurrentConstants
 --- Zwraca aktualne wartości stałych w systemie
 CREATE VIEW CurrentConstants
-AS SELECT TOP 1 * 
+AS SELECT TOP 1 c.Z1, c.K1, c.R1, c.K2, c.R2, c.D1, c.WZ, c.WK
     FROM Constants c
     ORDER BY c.[Date] DESC
 GO

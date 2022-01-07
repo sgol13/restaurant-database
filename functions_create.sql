@@ -61,3 +61,4 @@ BEGIN
     RETURN CASE WHEN @TotalAmount >= @MinTotalAmount THEN 1 ELSE 0 END
 END
 GO
+--<
