@@ -16,13 +16,13 @@ DROP PROCEDURE AcceptReservation
 GO
 
 --> Procedury
---# AcceptReservation
+--# AcceptReservation(ReservationID)
 --- Akceptuje wybraną rezerwację
 CREATE PROCEDURE AcceptReservation (@ReservationID int)
 AS BEGIN
     IF(SELECT Accepted FROM Reservations WHERE ReservationID = @ReservationID) = 1
     BEGIN
-        ;THROW 52000, 'Reservation is already accepted', 1
+        ;THROW 52000, 'Reservation already accepted', 1
         RETURN
     END
 
@@ -37,3 +37,29 @@ AS BEGIN
 END
 GO
 --<
+
+DROP PROCEDURE CancelReservation
+GO
+
+--> Procedury
+--# CancelReservation(ReservationID)
+--- Anuluje wybraną rezerwację
+CREATE PROCEDURE CancelReservation (@ReservationID int)
+AS BEGIN
+
+    IF(SELECT Canceled FROM Reservations WHERE ReservationID = @ReservationID) = 1
+    BEGIN
+        ;THROW 52000, 'Reservation already cancelled', 1
+        RETURN
+    END
+
+    UPDATE Reservations SET Canceled = 1
+    WHERE ReservationID = @ReservationID
+END
+GO
+--<
+
+
+
+
+
