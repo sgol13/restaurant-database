@@ -16,7 +16,7 @@ VALUES
 ('Woda mineralna niegazowana', 0, 3.0, 1),
 ('Woda mineralna gazowana', 0, 3.50, 1);
 
-INSERT INTO Menu (StartDate, EndDate)
+INSERT INTO Menu (StartDate, EndDate, Active)
 VALUES ('2021-12-17','2021-12-31', 1),
 ('2022-01-01','2022-01-08', 1),
 ('2022-01-09','2022-01-15', 1);

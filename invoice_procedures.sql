@@ -17,19 +17,21 @@ AS BEGIN
         RETURN
     END
 
-    INSERT INTO Invoices(
-        Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
-    )
-    SELECT GETDATE(), dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
-                Email, Phone, Address, City, PostalCode, Country 
-    FROM Orders
-        JOIN Customers ON Customers.CustomerID = Orders.OrderID
-        LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
-        LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
-    WHERE Orders.OrderID = @OrderID;
+    BEGIN TRANSACTION;
+        INSERT INTO Invoices(
+            Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
+        )
+        SELECT GETDATE(), dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
+                    Email, Phone, Address, City, PostalCode, Country 
+        FROM Orders
+            JOIN Customers ON Customers.CustomerID = Orders.OrderID
+            LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
+            LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
+        WHERE Orders.OrderID = @OrderID;
 
-    UPDATE Orders SET InvoiceID = @@IDENTITY
-    WHERE OrderID = @OrderID
+        UPDATE Orders SET InvoiceID = @@IDENTITY
+        WHERE OrderID = @OrderID
+    COMMIT;
 END
 GO
 --<
@@ -48,22 +50,24 @@ AS BEGIN
         RETURN
     END
 
-    INSERT INTO Invoices(
-        Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
-    )
-    SELECT GETDATE(), SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
-            MAX(CompanyName), MAX(Email), MAX(Phone), MAX(Address), MAX(City), MAX(PostalCode), MAX(Country) 
-    FROM Customers
-        LEFT JOIN Orders ON Orders.CustomerID = Customers.CustomerID AND Orders.InvoiceID IS NULL
-                            AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
-        LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
-        LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
-    WHERE Customers.CustomerID = @CustomerID
-    GROUP BY Customers.CustomerID
+    BEGIN TRANSACTION;
+        INSERT INTO Invoices(
+            Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
+        )
+        SELECT GETDATE(), SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
+                MAX(CompanyName), MAX(Email), MAX(Phone), MAX(Address), MAX(City), MAX(PostalCode), MAX(Country) 
+        FROM Customers
+            LEFT JOIN Orders ON Orders.CustomerID = Customers.CustomerID AND Orders.InvoiceID IS NULL
+                                AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
+            LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
+            LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
+        WHERE Customers.CustomerID = @CustomerID
+        GROUP BY Customers.CustomerID
 
-    UPDATE Orders SET InvoiceID = @@IDENTITY
-    WHERE Orders.CustomerID = @CustomerID AND Orders.InvoiceID IS NULL
-            AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
+        UPDATE Orders SET InvoiceID = @@IDENTITY
+        WHERE Orders.CustomerID = @CustomerID AND Orders.InvoiceID IS NULL
+                AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
+    COMMIT;
 END
 GO
 --<
