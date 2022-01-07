@@ -55,6 +55,7 @@ AS BEGIN
 
     UPDATE Reservations SET Canceled = 1
     WHERE ReservationID = @ReservationID
+
 END
 GO
 --<
