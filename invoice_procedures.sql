@@ -19,9 +19,9 @@ AS BEGIN
 
     BEGIN TRANSACTION;
         INSERT INTO Invoices(
-            Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
+            Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
         )
-        SELECT GETDATE(), dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
+        SELECT GETDATE(), Customers.CustomerID, dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
                     Email, Phone, Address, City, PostalCode, Country 
         FROM Orders
             JOIN Customers ON Customers.CustomerID = Orders.OrderID
@@ -52,9 +52,9 @@ AS BEGIN
 
     BEGIN TRANSACTION;
         INSERT INTO Invoices(
-            Date, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
+            Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
         )
-        SELECT GETDATE(), SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
+        SELECT GETDATE(), Customers.CustomerID SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
                 MAX(CompanyName), MAX(Email), MAX(Phone), MAX(Address), MAX(City), MAX(PostalCode), MAX(Country) 
         FROM Customers
             LEFT JOIN Orders ON Orders.CustomerID = Customers.CustomerID AND Orders.InvoiceID IS NULL
