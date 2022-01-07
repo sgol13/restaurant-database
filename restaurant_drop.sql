@@ -6,6 +6,8 @@ ALTER TABLE CompanyCustomers DROP CONSTRAINT Customers_CompanyCustomers;
 
 ALTER TABLE PrivateCustomers DROP CONSTRAINT Customers_PrivateCustomers;
 
+ALTER TABLE Invoices DROP CONSTRAINT Invoices_Customers;
+
 ALTER TABLE Orders DROP CONSTRAINT Invoices_Orders;
 
 ALTER TABLE MenuItems DROP CONSTRAINT MenuItems_Meals;

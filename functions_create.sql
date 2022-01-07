@@ -16,4 +16,48 @@ BEGIN
     )
 END
 GO
+
+DROP FUNCTION IsDiscountType1
+GO
+
+
+--> Funkcje
+--# IsDiscountType1(CustomerID)
+--- Sprawdza czy klientowi przysługuje w tej chwili rabat typu pierwszego (co najmniej Z1 zamówień za kwotę przynajmniej K1)
+CREATE FUNCTION IsDiscountType1(@CustomerID int) Returns BIT
+BEGIN
+    DECLARE @MinOrdersNumber INT = (SELECT Z1 FROM CurrentConstants)
+    DECLARE @MinSingleOrderAmount INT  = (SELECT K1 FROM CurrentConstants)
+
+    DECLARE @BigOrdersNumber money = (
+        SELECT COUNT(1)
+        FROM Orders o 
+        WHERE o.CustomerID = @CustomerID AND dbo.TotalOrderAmount(o.OrderID) > @MinSingleOrderAmount
+    )
+
+    RETURN CASE WHEN (@BigOrdersNumber >= @MinOrdersNumber) THEN 1 ELSE 0 END
+END
+GO
 --<
+
+
+DROP FUNCTION IsDiscountType2
+GO
+
+--> Funkcje
+--# IsDiscountType2(CustomerID)
+--- Sprawdza czy klientowi przysługuje w tej chwili rabat typu drugiego (zamówienia za co najmniej K2 w ciągu ostatich D1 dni)
+CREATE FUNCTION IsDiscountType2(@CustomerID int) Returns BIT
+BEGIN
+    DECLARE @MinTotalAmount INT = (SELECT K2 FROM CurrentConstants)
+    DECLARE @LastDays INT  = (SELECT D1 FROM CurrentConstants)
+
+    DECLARE @TotalAmount money = (
+        SELECT SUM(dbo.TotalOrderAmount(o.OrderID))
+        FROM Orders o 
+        WHERE o.CustomerID = @CustomerID AND DATEDIFF(DAY, o.OrderDate, GETDATE()) <= @LastDays
+    )
+
+    RETURN CASE WHEN @TotalAmount >= @MinTotalAmount THEN 1 ELSE 0 END
+END
+GO

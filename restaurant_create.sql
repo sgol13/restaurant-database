@@ -133,7 +133,7 @@ CREATE TABLE OrderDetails (
 CREATE TABLE OrderDiscounts (
     OrderID int  NOT NULL,
     Discount decimal(5,2)  NOT NULL,
-    DiscountType int  NOT NULL,
+    DiscountType int  NOT NULL CHECK (DiscountType IN (1, 2)),
     CONSTRAINT DiscountRange CHECK (Discount >= 0 AND Discount <= 1),
     CONSTRAINT OrderDiscounts_pk PRIMARY KEY  (OrderID,DiscountType)
 );

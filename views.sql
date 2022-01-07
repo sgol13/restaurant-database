@@ -35,3 +35,13 @@ AS SELECT O.OrderID, M.MealID, MI.MenuID, OD.Number, O.CustomerID, O.Reservation
 WHERE SeaFood = 1
 GO
 --<
+
+--> Widoki
+--# CurrectConstants
+--- Zwraca aktualne wartości stałych w systemie
+CREATE VIEW CurrentConstants
+AS SELECT TOP 1 * 
+    FROM Constants c
+    ORDER BY c.[Date] DESC
+GO
+--< 
