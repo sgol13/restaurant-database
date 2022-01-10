@@ -1,10 +1,7 @@
-DROP PROCEDURE CreateOrderInvoice
-GO
-
 --> Procedury
 --# CreateOrderInvoice(OrderID)
 --- Generuje fakturę w tabeli Invoices dla danego zamówienia.
-CREATE PROCEDURE CreateOrderInvoice(@OrderID int)
+CREATE OR ALTER PROCEDURE CreateOrderInvoice(@OrderID int)
 AS BEGIN
     IF (SELECT InvoiceID FROM Orders WHERE OrderID = @OrderID) IS NOT NULL
     BEGIN
@@ -36,13 +33,11 @@ END
 GO
 --<
 
-DROP PROCEDURE CreateMonthlyInvoice
-GO
 
 --> Procedury
 --# CreateMonthlyInvoice(CustomerID, Month, Year)
 --- Generuje fakturę dla danego klienta, dla danego miesiąca.
-CREATE PROCEDURE CreateMonthlyInvoice(@CustomerID Int, @Month int, @Year int)
+CREATE OR ALTER PROCEDURE CreateMonthlyInvoice(@CustomerID Int, @Month int, @Year int)
 AS BEGIN
     IF DATEFROMPARTS(@Year, @Month, DAY(EOMONTH(DATEFROMPARTS(@Year, @Month, 1)))) >= GETDATE()
     BEGIN

@@ -1,21 +1,15 @@
-DROP VIEW MenusInProgress
-GO
-
 --> Widoki
 --# MenusInProgress
 --- Pokazuje nieaktywne menu.
-CREATE VIEW MenusInProgress AS
+CREATE OR ALTER VIEW MenusInProgress AS
 SELECT MenuID FROM Menu WHERE Active = 0
 GO
 --<
 
-DROP PROCEDURE NewMenuInProgress
-GO
-
 --> Procedury
 --# NewMenuInProgress(StartDate, EndData, MenuID OUTPUT)
 --- Tworzy nowe nieaktywne menu.
-CREATE PROCEDURE NewMenuInProgress(@StartDate datetime, @EndDate datetime, @MenuID int OUTPUT)
+CREATE OR ALTER PROCEDURE NewMenuInProgress(@StartDate datetime, @EndDate datetime, @MenuID int OUTPUT)
 AS BEGIN
     INSERT INTO Menu(StartDate, EndDate, Active)
     VALUES(@StartDate, @EndDate, 0)
@@ -25,13 +19,11 @@ END
 GO
 --<
 
-DROP PROCEDURE ChangeMenuDates
-GO
 
 --> Procedury
 --# ChangeMenuDates(MenuID, StartDate, EndDate)
 --- Zmienia daty niaktywnego menu.
-CREATE PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDate datetime = NULL)
+CREATE OR ALTER PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDate datetime = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
@@ -53,13 +45,11 @@ END
 GO
 --<
 
-DROP PROCEDURE SetMenuItem
-GO
 
 --> Procedury
 --# SetMenuItem(MenuID, MealID, Price)
 --- Dodaje posiłek do nieaktywnego menu.
-CREATE PROCEDURE SetMenuItem(@MenuID int, @MealID int, @Price money = NULL)
+CREATE OR ALTER PROCEDURE SetMenuItem(@MenuID int, @MealID int, @Price money = NULL)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
@@ -81,13 +71,11 @@ END
 GO
 --<
 
-DROP PROCEDURE RemoveMenuItem
-GO
 
 --> Procedury
 --# RemoveMenuItem(MenuID, MealID)
 --- Usuwa posiłek z nieaktynego menu.
-CREATE PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
+CREATE OR ALTER PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
 AS BEGIN
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
     BEGIN
@@ -101,13 +89,11 @@ END
 GO
 --<
 
-DROP PROCEDURE ActivateMenu
-GO
 
 --> Procedury
 --# ActivateMenu(MenuID)
 --- Próbuje aktywować menu biorąc pod uwagę niepowtarzanie się posiłków i nienachodzenie dat.
-CREATE PROCEDURE ActivateMenu(@MenuID int)
+CREATE OR ALTER PROCEDURE ActivateMenu(@MenuID int)
 AS BEGIN
     -- Check if not active
     IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1

@@ -1,10 +1,7 @@
-DROP PROCEDURE AddReservation
-GO
-
 --> Procedury
 --# AddReservation(StartDate, EndDate, CustomerID, Guests)
 --- Dodaje nową rezerwację
-CREATE PROCEDURE AddReservation (@StartDate datetime, @EndDate datetime, @CustomerID int, @Guests nvarchar(max))
+CREATE OR ALTER PROCEDURE AddReservation (@StartDate datetime, @EndDate datetime, @CustomerID int, @Guests nvarchar(max))
 AS BEGIN
     INSERT INTO Reservations(StartDate, EndDate, Accepted, CustomerID, Guests, Canceled)
     VALUES (@StartDate, @EndDate, 0, @CustomerID, @Guests, 0)
@@ -12,13 +9,11 @@ END
 GO
 --<
 
-DROP PROCEDURE AcceptReservation
-GO
 
 --> Procedury
 --# AcceptReservation(ReservationID)
 --- Akceptuje wybraną rezerwację
-CREATE PROCEDURE AcceptReservation (@ReservationID int)
+CREATE OR ALTER PROCEDURE AcceptReservation (@ReservationID int)
 AS BEGIN
     IF(SELECT Accepted FROM Reservations WHERE ReservationID = @ReservationID) = 1
     BEGIN
@@ -38,13 +33,11 @@ END
 GO
 --<
 
-DROP PROCEDURE CancelReservation
-GO
 
 --> Procedury
 --# CancelReservation(ReservationID)
 --- Anuluje wybraną rezerwację
-CREATE PROCEDURE CancelReservation (@ReservationID int)
+CREATE OR ALTER PROCEDURE CancelReservation (@ReservationID int)
 AS BEGIN
 
     IF(SELECT Canceled FROM Reservations WHERE ReservationID = @ReservationID) = 1

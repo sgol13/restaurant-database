@@ -1,10 +1,7 @@
-DROP PROCEDURE UpdateConstants
-GO
-
 --> Procedury
 --# UpdateConstants(...)
 --- Aktualizuje podane stałe (nie zmieniając pozostałych).
-CREATE PROCEDURE UpdateConstants(
+CREATE OR ALTER PROCEDURE UpdateConstants(
     @Z1 INT = NULL,
     @K1 INT = NULL,
     @R1 INT = NULL,

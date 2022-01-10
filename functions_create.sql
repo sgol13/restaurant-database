@@ -1,10 +1,7 @@
-DROP FUNCTION TotalOrderAmount
-GO
-
 --> Funkcje
 --# TotalOrderAmount(OrderID)
 --- Zwraca całkowitą cenę zamówienia biorąc pod uwagę rabaty.
-CREATE FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
+CREATE OR ALTER FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
 BEGIN
     RETURN (
         SELECT SUM(OD.Number * MI.Price) * (1-SUM(Discounts.Discount)) FROM Orders
@@ -17,14 +14,10 @@ BEGIN
 END
 GO
 
-DROP FUNCTION IsDiscountType1
-GO
-
-
 --> Funkcje
 --# IsDiscountType1(CustomerID)
 --- Sprawdza czy klientowi przysługuje w tej chwili rabat typu pierwszego (co najmniej Z1 zamówień za kwotę przynajmniej K1)
-CREATE FUNCTION IsDiscountType1(@CustomerID int) Returns bit
+CREATE OR ALTER FUNCTION IsDiscountType1(@CustomerID int) Returns bit
 BEGIN
     DECLARE @MinOrdersNumber int = (SELECT Z1 FROM CurrentConstants)
     DECLARE @MinSingleOrderAmount int  = (SELECT K1 FROM CurrentConstants)
@@ -40,14 +33,10 @@ END
 GO
 --<
 
-
-DROP FUNCTION IsDiscountType2
-GO
-
 --> Funkcje
 --# IsDiscountType2(CustomerID)
 --- Sprawdza czy klientowi przysługuje w tej chwili rabat typu drugiego (zamówienia za co najmniej K2 w ciągu ostatich D1 dni)
-CREATE FUNCTION IsDiscountType2(@CustomerID int) RETURNS bit
+CREATE OR ALTER FUNCTION IsDiscountType2(@CustomerID int) RETURNS bit
 BEGIN
     DECLARE @MinTotalAmount int = (SELECT K2 FROM CurrentConstants)
     DECLARE @LastDays int  = (SELECT D1 FROM CurrentConstants)

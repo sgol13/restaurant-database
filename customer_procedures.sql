@@ -1,10 +1,7 @@
-DROP PROCEDURE AddCompanyCustomer
-GO
-
 --> Procedury
 --# AddCompanyCustomer(...)
 --- Dodaje firmę jako klienta.
-CREATE PROCEDURE AddCompanyCustomer(
+CREATE OR ALTER PROCEDURE AddCompanyCustomer(
     @Email nvarchar(64),
     @Phone nvarchar(16),
     @Address nvarchar(64),
@@ -25,13 +22,11 @@ END
 GO
 --<
 
-DROP PROCEDURE AddPrivateCustomer
-GO
 
 --> Procedury
 --# AddPrivateCustomer(...)
 --- Dodaje osobę prywatną jako klienta.
-CREATE PROCEDURE AddPrivateCustomer(
+CREATE OR ALTER PROCEDURE AddPrivateCustomer(
     @Email nvarchar(64),
     @Phone nvarchar(16),
     @Address nvarchar(64),
