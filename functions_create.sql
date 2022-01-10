@@ -24,10 +24,10 @@ GO
 --> Funkcje
 --# IsDiscountType1(CustomerID)
 --- Sprawdza czy klientowi przysługuje w tej chwili rabat typu pierwszego (co najmniej Z1 zamówień za kwotę przynajmniej K1)
-CREATE FUNCTION IsDiscountType1(@CustomerID int) Returns BIT
+CREATE FUNCTION IsDiscountType1(@CustomerID int) Returns bit
 BEGIN
-    DECLARE @MinOrdersNumber INT = (SELECT Z1 FROM CurrentConstants)
-    DECLARE @MinSingleOrderAmount INT  = (SELECT K1 FROM CurrentConstants)
+    DECLARE @MinOrdersNumber int = (SELECT Z1 FROM CurrentConstants)
+    DECLARE @MinSingleOrderAmount int  = (SELECT K1 FROM CurrentConstants)
 
     DECLARE @BigOrdersNumber money = (
         SELECT COUNT(1)
@@ -47,10 +47,10 @@ GO
 --> Funkcje
 --# IsDiscountType2(CustomerID)
 --- Sprawdza czy klientowi przysługuje w tej chwili rabat typu drugiego (zamówienia za co najmniej K2 w ciągu ostatich D1 dni)
-CREATE FUNCTION IsDiscountType2(@CustomerID int) Returns BIT
+CREATE FUNCTION IsDiscountType2(@CustomerID int) RETURNS bit
 BEGIN
-    DECLARE @MinTotalAmount INT = (SELECT K2 FROM CurrentConstants)
-    DECLARE @LastDays INT  = (SELECT D1 FROM CurrentConstants)
+    DECLARE @MinTotalAmount int = (SELECT K2 FROM CurrentConstants)
+    DECLARE @LastDays int  = (SELECT D1 FROM CurrentConstants)
 
     DECLARE @TotalAmount money = (
         SELECT SUM(dbo.TotalOrderAmount(o.OrderID))
@@ -59,6 +59,17 @@ BEGIN
     )
 
     RETURN CASE WHEN @TotalAmount >= @MinTotalAmount THEN 1 ELSE 0 END
+END
+GO
+--<
+
+
+--> Funkcje
+--# GetMenuForDay(Day datetime)
+--- Zwraca ID menu obowiązującego w podanym czasie.
+CREATE OR ALTER FUNCTION GetMenuForDay(@Day datetime) RETURNS int
+BEGIN
+    RETURN (SELECT MenuID FROM Menu WHERE Active = 1 AND @Day BETWEEN StartDate AND EndDate)
 END
 GO
 --<

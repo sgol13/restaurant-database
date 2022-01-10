@@ -119,11 +119,11 @@ CREATE TABLE MenuItems (
 --- Zawiera wszystkie pozycje ze wszystkich złożonych zamówień. Każda pozycja jest przypisana do dokładnie jednego zamówienia i może obejmować kilka sztuk tego samego produktu.
 CREATE TABLE OrderDetails (
     OrderID int  NOT NULL,
-    Number int  NOT NULL,
+    Quantity int  NOT NULL,
     MealID int  NOT NULL,
     MenuID int  NOT NULL,
-    CONSTRAINT PositiveMenuNumber CHECK (Number > 0),
-    CONSTRAINT OrderDetails_pk PRIMARY KEY  (OrderID)
+    CONSTRAINT PositiveQuantity CHECK (Quantity > 0),
+    CONSTRAINT OrderDetails_pk PRIMARY KEY  (OrderID, MealID)
 );
 --<
 
