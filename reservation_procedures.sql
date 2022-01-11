@@ -4,7 +4,7 @@
 CREATE OR ALTER PROCEDURE AddReservation (@StartDate datetime, @EndDate datetime, @CustomerID int, @Guests nvarchar(max), @Tables ReservationTablesList READONLY)
 AS BEGIN
 
-    IF (AreTablesAvailable (@StartDate, @EndDate, @Tables))
+    -- IF (AreTablesAvailable (@StartDate, @EndDate, @Tables))
 
     INSERT INTO Reservations(StartDate, EndDate, Accepted, CustomerID, Guests, Canceled)
     VALUES (@StartDate, @EndDate, 0, @CustomerID, @Guests, 0)
@@ -63,7 +63,7 @@ GO
 
 
 --> Funkcje
---# AreTablesAvailable(@StartDate datetime, @EndDate datetime, @Tables ReservationTablesList READONLY)
+--# AreTablesAvailable(StartDate, EndDate, Tables)
 --- Sprawdza czy stoliki z listy są dostępne w danym przedziale czasowym
 CREATE OR ALTER FUNCTION AreTablesAvailable(@StartDate datetime, @EndDate datetime, @Tables ReservationTablesList READONLY)
 RETURNS BIT
@@ -75,7 +75,7 @@ BEGIN
     AND ((NOT EndDate <= @StartDate OR StartDate >= @EndDate) AND Canceled = 0)))
     BEGIN
         ;THROW 52000, 'Not all selected tables will be available', 1
-        RETURN
+        RETURN 0
     END
     RETURN 1
 END

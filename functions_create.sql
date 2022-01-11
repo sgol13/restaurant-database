@@ -13,6 +13,7 @@ BEGIN
     )
 END
 GO
+--<
 
 --> Funkcje
 --# IsDiscountType1(CustomerID)
@@ -54,7 +55,7 @@ GO
 
 
 --> Funkcje
---# GetMenuForDay(Day datetime)
+--# GetMenuForDay(Day)
 --- Zwraca ID menu obowiązującego w podanym czasie.
 CREATE OR ALTER FUNCTION GetMenuForDay(@Day datetime) RETURNS int
 BEGIN
