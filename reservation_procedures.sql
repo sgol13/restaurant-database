@@ -4,15 +4,16 @@
 CREATE OR ALTER PROCEDURE AddReservation (@StartDate datetime, @EndDate datetime, @CustomerID int, @Guests nvarchar(max), @Tables ReservationTablesList READONLY)
 AS BEGIN
 
-    -- IF (AreTablesAvailable (@StartDate, @EndDate, @Tables))
+    IF (AreTablesAvailable (@StartDate, @EndDate, @Tables))
+    BEGIN
+        INSERT INTO Reservations(StartDate, EndDate, Accepted, CustomerID, Guests, Canceled)
+        VALUES (@StartDate, @EndDate, 0, @CustomerID, @Guests, 0)
 
-    INSERT INTO Reservations(StartDate, EndDate, Accepted, CustomerID, Guests, Canceled)
-    VALUES (@StartDate, @EndDate, 0, @CustomerID, @Guests, 0)
+        DECLARE @ReservationID int = @@IDENTITY
 
-    DECLARE @ReservationID int = @@IDENTITY
-
-    INSERT INTO TableDetails(TableID, ReservationID)
-    SELECT @TableID, @ReservationID FROM @Tables
+        INSERT INTO TableDetails(TableID, ReservationID)
+        SELECT @TableID, @ReservationID FROM @Tables
+    END
 END
 GO
 --<

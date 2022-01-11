@@ -294,6 +294,7 @@ ALTER TABLE Reservations ADD CONSTRAINT Reservations_Customers
 
 --> Tabele
 --# Invoices
+---
 ALTER TABLE Invoices ADD CONSTRAINT Invoices_Customers
     FOREIGN KEY (CustomerID)
     REFERENCES Customers (CustomerID);
