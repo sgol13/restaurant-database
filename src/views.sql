@@ -41,7 +41,7 @@ GO
 
 --> Widoki
 --# CurrentConstants
---- Zwraca aktualne wartości stałych w systemie
+--- Zwraca aktualne wartości stałych rabatowych w systemie
 CREATE OR ALTER VIEW CurrentConstants
 AS SELECT TOP 1 c.Z1, c.K1, c.R1, c.K2, c.R2, c.D1, c.WZ, c.WK
     FROM Constants c
@@ -73,5 +73,14 @@ WHERE Active = 1 AND
 OR T.TableID NOT IN (SELECT TableID FROM TableDetails TD1
     INNER JOIN Reservations R1 ON TD1.ReservationID = R1.ReservationID
     WHERE R1.StartDate <= GETDATE() AND GETDATE() <= EndDate AND R1.Canceled = 0))
+GO
+--<
+
+
+--> Widoki
+--# MenusInProgress
+--- Pokazuje nieaktywne menu.
+CREATE OR ALTER VIEW MenusInProgress AS
+SELECT MenuID FROM Menu WHERE Active = 0
 GO
 --<

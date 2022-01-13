@@ -6,7 +6,7 @@
 --- Przechowuje informacje o firmach: numer firmy, nazwa firmy, (opcjonalny) NIP.
 CREATE TABLE CompanyCustomers (
     CustomerID int  NOT NULL,
-    CompanyName nvarchar(64)  NOT NULL,
+    CompanyName nvarchar(64) NULL,
     NIP varchar(16)  NULL,
     CONSTRAINT CompanyCustomers_pk PRIMARY KEY (CustomerID)
 );
@@ -161,8 +161,8 @@ CREATE TABLE Orders (
 --- Przechowuje informacje o klientach indywidualnych: imię i nazwisko
 CREATE TABLE PrivateCustomers (
     CustomerID int  NOT NULL,
-    FirstName nvarchar(64)  NOT NULL,
-    LastName nvarchar(64)  NOT NULL,
+    FirstName nvarchar(64)  NULL,
+    LastName nvarchar(64)  NULL,
     CONSTRAINT PrivateCustomers_pk PRIMARY KEY  (CustomerID)
 );
 --<

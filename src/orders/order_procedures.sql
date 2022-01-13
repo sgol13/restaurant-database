@@ -13,7 +13,7 @@ AS BEGIN
         RETURN 
     END
 
-    DECLARE @MenuID int = dbo.GetMenuForDay(@CompletionDate)
+    DECLARE @MenuID int = dbo.GetMenuIDForDay(@CompletionDate)
     IF @MenuID IS NULL
     BEGIN
         ;THROW 52000, 'The menu does not exist', 1
