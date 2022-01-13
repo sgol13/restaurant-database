@@ -2,10 +2,10 @@ import os
 
 text = ""
 
-for _, _, files in os.walk("."):
+for root, _, files in os.walk("."):
     for name in files:
         if name.endswith(".sql"):
-            file = open(name, "r", encoding="utf8")
+            file = open(root + '/' + name, "r", encoding="utf8")
             text += file.read()
             file.close()
 
@@ -42,13 +42,14 @@ while start < len(text):
         fragments[type][title] = (desc, code)
     else:
         (desc0, code0) = fragments[type][title]
-        fragments[type][title] = ((desc0 + " " + desc).strip(), code0 + "\n\n" + code)
+        fragments[type][title] = (
+            (desc0 + " " + desc).strip(), code0 + "\n\n" + code)
 
     start = e
 
 latex = ""
 
-types = ["Tabele", "Procedury", "Widoki", "Funkcje"]
+types = ["Tabele", "Widoki", "Procedury", "Funkcje"]
 
 for type in fragments:
     if type not in types:
