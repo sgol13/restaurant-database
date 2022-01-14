@@ -27,7 +27,8 @@ GO
 
 --> Funkcje
 --# CustomerStatistics(CustomerID, Monthly, Date)
---- Raport dotyczący danego klienta, wyświetla dla każdego zamówienia końcowa cenę, czas w którym zamówienie spłyneło i datę na które jest to zamówienie. Jeśli Monthly jest ustawione na 1, raport jest miesięczny, a w przeciwnym wypadku jest tygodniowy.
+--- Raport dotyczący danego klienta, wyświetla dla każdego zamówienia końcowa cenę, czas w którym zamówienie spłyneło i datę na które jest to zamówienie. 
+--- Jeśli Monthly jest ustawione na 1, raport jest miesięczny, a w przeciwnym wypadku jest tygodniowy.
 CREATE OR ALTER FUNCTION CustomerStatistics(
     @CustomerID int,
     @Monthly bit,
@@ -51,7 +52,8 @@ GO
 
 --> Funkcje
 --# OrderStatistics(Monthly, Date)
---- Raport dotyczący zamówień, wyświetla dla każdego zamówienia końcowa cenę, czas w którym zamówienie spłyneło i datę na które jest to zamówienie, a także nazwę klienta (imię i nazwisko w przypadku klienta indywidualnego). Jeśli Monthly jest ustawione na 1, raport jest miesięczny, a w przeciwnym wypadku jest tygodniowy.
+--- Raport dotyczący zamówień, wyświetla dla każdego zamówienia końcowa cenę, czas w którym zamówienie spłyneło i datę na które jest to zamówienie, 
+--- a także nazwę klienta (imię i nazwisko w przypadku klienta indywidualnego). Jeśli Monthly jest ustawione na 1, raport jest miesięczny, a w przeciwnym wypadku jest tygodniowy.
 CREATE OR ALTER FUNCTION OrderStatistics(
     @Monthly bit,
     @Date datetime
@@ -76,7 +78,8 @@ GO
 
 --> Funkcje
 --# TableStatistics(Monthly, Date)
---- Raport dotyczący stolików, dla każdego pokazuje ilość miejsc, to czy jest aktywny a także ile razy został zarezerowany w danym okresie. Jeśli Monthly jest ustawione na 1, raport jest miesięczny, a w przeciwnym wypadku jest tygodniowy.
+--- Raport dotyczący stolików, dla każdego pokazuje ilość miejsc, to czy jest aktywny a także ile razy został zarezerowany w danym okresie. 
+--- Jeśli Monthly jest ustawione na 1, raport jest miesięczny, a w przeciwnym wypadku jest tygodniowy.
 CREATE OR ALTER FUNCTION TableStatistics (
     @Monthly bit,
     @Date datetime

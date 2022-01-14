@@ -20,7 +20,7 @@ GO
 --# ReservationsToAccept
 --- Pokazuje rezerwacje, które nie zostały zaakceptowane.
 CREATE OR ALTER VIEW ReservationsToAccept
-AS SELECT ReservationID, CustomerID, Guests, Canceled FROM Reservations WHERE Accepted = 0
+AS SELECT ReservationID, CustomerID, Guests, Canceled FROM Reservations WHERE Accepted = 0 AND Canceled = 0
 GO
 --<
 
