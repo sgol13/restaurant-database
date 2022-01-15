@@ -37,8 +37,9 @@ GO
 
 --> Funkcje
 --# IsDiscountType1(CustomerID)
---- Sprawdza czy klientowi przysługuje w tej chwili rabat typu pierwszego (co najmniej Z1 zamówień za kwotę przynajmniej K1)
-CREATE OR ALTER FUNCTION IsDiscountType1(@CustomerID int) RETURNS bit
+--- Sprawdza czy klientowi przysługuje w danej chwili rabat typu pierwszego (co najmniej Z1 zamówień za kwotę przynajmniej K1)
+--- na zamówienie dokonane w danym terminie.
+CREATE OR ALTER FUNCTION IsDiscountType1(@CustomerID int, @CheckDate datetime) RETURNS bit
 BEGIN
     DECLARE @MinOrdersNumber int = (SELECT Z1 FROM CurrentConstants)
     DECLARE @MinSingleOrderAmount int  = (SELECT K1 FROM CurrentConstants)
@@ -46,7 +47,11 @@ BEGIN
     DECLARE @BigOrdersNumber money = (
         SELECT COUNT(1)
         FROM Orders o 
-        WHERE o.CustomerID = @CustomerID AND dbo.TotalOrderAmount(o.OrderID) > @MinSingleOrderAmount
+        WHERE 
+            o.CustomerID = @CustomerID AND 
+            dbo.TotalOrderAmount(o.OrderID) > @MinSingleOrderAmount AND 
+            o.Completed = 1 AND
+            o.CompletionDate < @CheckDate
     )
 
     RETURN CASE WHEN (@BigOrdersNumber >= @MinOrdersNumber) THEN 1 ELSE 0 END
@@ -54,10 +59,11 @@ END
 GO
 --<
 
+
 --> Funkcje
 --# IsDiscountType2(CustomerID)
---- Sprawdza czy klientowi przysługuje w tej chwili rabat typu drugiego (zamówienia za co najmniej K2 w ciągu ostatich D1 dni)
-CREATE OR ALTER FUNCTION IsDiscountType2(@CustomerID int) RETURNS bit
+--- Sprawdza czy klientowi przysługuje w danej chwili rabat typu drugiego (zamówienia za co najmniej K2 w ciągu poprzedzająych D1 dni)
+CREATE OR ALTER FUNCTION IsDiscountType2(@CustomerID int, @CheckDate datetime) RETURNS bit
 BEGIN
     DECLARE @MinTotalAmount int = (SELECT K2 FROM CurrentConstants)
     DECLARE @LastDays int  = (SELECT D1 FROM CurrentConstants)
@@ -65,7 +71,11 @@ BEGIN
     DECLARE @TotalAmount money = (
         SELECT SUM(dbo.TotalOrderAmount(o.OrderID))
         FROM Orders o 
-        WHERE o.CustomerID = @CustomerID AND DATEDIFF(DAY, o.OrderDate, GETDATE()) <= @LastDays
+        WHERE
+            o.CustomerID = @CustomerID AND 
+            DATEDIFF(DAY, o.OrderDate, GETDATE()) <= @LastDays AND 
+            o.Completed = 1 AND
+            o.CompletionDate < @CheckDate
     )
 
     RETURN CASE WHEN @TotalAmount >= @MinTotalAmount THEN 1 ELSE 0 END

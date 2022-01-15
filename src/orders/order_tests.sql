@@ -127,6 +127,6 @@ SELECT * FROM Orders
 SELECT * FROM MenuItems mi INNER JOIN Meals m ON m.MealID = mi.MealID WHERE MenuID = 3
 SELECT * FROM Menu
 
-DELETE FROM Meals
-DELETE FROM Menu 
-DELETE FROM MenuItems
+-- DELETE FROM Meals
+-- DELETE FROM Menu 
+-- DELETE FROM MenuItems

@@ -139,7 +139,7 @@ GO
 
 --> Procedury
 --# PayForOrder
---- Zapisuje informację, że klient zapłacił za dane zamówienie.
+--- Dokonuje płatności za zamówienie i jednocześnie przydziela rabaty, jeśli zostały spełnione warunki.
 CREATE OR ALTER PROCEDURE PayForOrder (@OrderID int)
 AS BEGIN
     BEGIN TRY
@@ -163,7 +163,29 @@ AS BEGIN
             RETURN;
         END
 
+        -- update status
         UPDATE Orders SET Paid = 1 WHERE OrderID = @OrderID
+
+        DECLARE @CustomerID int;(SELECT CustomerID FROM Orders WHERE OrderID = @OrderID)
+        DECLARE @CompletionDate datetime;
+
+        SELECT 
+            @CustomerID = CustomerID,
+            @CompletionDate = CompletionDate
+        FROM Orders
+        WHERE OrderID = @OrderID
+
+        -- give discount type 1
+        IF 1 = dbo.IsDiscountType1(@CustomerID, @CompletionDate) BEGIN
+            INSERT INTO OrderDiscounts 
+            VALUES (@OrderID, (SELECT R1 FROM CurrentConstants) / 100, 1)
+        END
+
+        -- give discount type 2
+        IF 1 = dbo.IsDiscountType2(@CustomerID, @CompletionDate) BEGIN
+            INSERT INTO OrderDiscounts 
+            VALUES (@OrderID, (SELECT R2 FROM CurrentConstants) / 100, 1)
+        END
 
     COMMIT
     END TRY
