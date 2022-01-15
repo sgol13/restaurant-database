@@ -135,3 +135,14 @@ AS BEGIN
 END
 GO
 --<
+
+--> Procedury
+--# DeactivateMenu(MenuID)
+--- Dezaktywuje menu.
+CREATE OR ALTER PROCEDURE DeactivateMenu(@MenuID int)
+AS BEGIN
+    UPDATE Menu SET Active = 0
+    WHERE MenuID = @MenuID
+END
+GO
+--<
