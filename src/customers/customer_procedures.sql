@@ -231,8 +231,54 @@ AS BEGIN
 
         UPDATE PrivateCustomers
         SET FirstName = ISNULL(@FirstName, @PREV_FirstName),
-            LastName = ISNULL(@LastName, @LastName)
+            LastName = ISNULL(@LastName, @PREV_LastName)
         WHERE CustomerID = @CustomerID
+
+    COMMIT;
+    END TRY
+    BEGIN CATCH;
+        ROLLBACK;
+        THROW;
+    END CATCH
+END
+GO
+--<
+
+
+--> Procedury
+--# ForgetCustomer(...)
+--- Umożliwia usunięcie danych klienta bez utraty spójności bazy danych (pozostaje tylko CustomerID)
+CREATE OR ALTER PROCEDURE ForgetCustomer(@CustomerID INT)
+AS BEGIN
+    BEGIN TRY;
+    BEGIN TRANSACTION;
+
+    IF NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID) BEGIN
+        ;THROW 52000, 'The customer does not exist', 1
+        RETURN 
+    END
+
+    UPDATE Customers
+    SET 
+        Email = NULL,
+        Phone = NULL,
+        Address = NULL,
+        City = NULL,
+        PostalCode = NULL,
+        Country = NULL
+    WHERE CustomerID = @CustomerID
+
+    UPDATE PrivateCustomers
+    SET
+        FirstName = NULL,
+        LastName = NULL
+    WHERE CustomerID = @CustomerID
+
+    UPDATE CompanyCustomers
+    SET
+        CompanyName = NULL,
+        NIP = NULL
+    WHERE CustomerID = @CustomerID
 
     COMMIT;
     END TRY
