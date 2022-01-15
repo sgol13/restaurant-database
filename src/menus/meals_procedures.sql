@@ -9,6 +9,9 @@ AS BEGIN
     SET @MealID = @@IDENTITY
 END
 GO
+
+GRANT EXECUTE ON OBJECT::dbo.NewMeal TO manager
+GO
 --<
 
 --> Procedury
@@ -21,6 +24,9 @@ AS BEGIN
     WHERE MealID = @MealID
 END
 GO
+
+GRANT EXECUTE ON OBJECT::dbo.SetMealActive TO manager
+GO
 --<
 
 --> Procedury
@@ -32,5 +38,8 @@ AS BEGIN
     SET DefaultPrice = @DefaultPrice
     WHERE MealID = @MealID
 END
+GO
+
+GRANT EXECUTE ON OBJECT::dbo.UpdateMealDefaultPrice TO manager
 GO
 --<

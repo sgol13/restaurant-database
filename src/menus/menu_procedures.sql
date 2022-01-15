@@ -9,6 +9,9 @@ AS BEGIN
     SET @MenuID = @@IDENTITY
 END
 GO
+
+GRANT EXECUTE ON OBJECT::dbo.NewMenuInProgress TO manager
+GO
 --<
 
 
@@ -34,6 +37,9 @@ AS BEGIN
         EndDate = ISNULL(@EndDate, @PrevEndDate)
     WHERE MenuID = @MenuID
 END
+GO
+
+GRANT EXECUTE ON OBJECT::dbo.ChangeMenuDates TO manager
 GO
 --<
 
@@ -61,6 +67,9 @@ AS BEGIN
     VALUES (@MenuID, @MealID, ISNULL(@Price, @DefaultPrice))
 END
 GO
+
+GRANT EXECUTE ON OBJECT::dbo.SetMenuItem TO manager
+GO
 --<
 
 
@@ -78,6 +87,9 @@ AS BEGIN
     DELETE MenuItems
     WHERE MenuID = @MenuID AND MealID = @MealID
 END
+GO
+
+GRANT EXECUTE ON OBJECT::dbo.RemoveMenuItem TO manager
 GO
 --<
 
@@ -134,6 +146,9 @@ AS BEGIN
     WHERE MenuID = @MenuID
 END
 GO
+
+GRANT EXECUTE ON OBJECT::dbo.ActivateMenu TO manager
+GO
 --<
 
 --> Procedury
@@ -144,5 +159,8 @@ AS BEGIN
     UPDATE Menu SET Active = 0
     WHERE MenuID = @MenuID
 END
+GO
+
+GRANT EXECUTE ON OBJECT::dbo.DeactivateMenu TO manager
 GO
 --<
