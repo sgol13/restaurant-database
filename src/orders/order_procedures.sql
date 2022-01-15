@@ -1,5 +1,5 @@
 --> Procedury
---# CreateOrder(CustomerID, CompletionDate, OrderedItems)
+--# CreateOrder
 --- Tworzy nowe zamówienie w systemie. Zamówienie jest przypisane do konkretnego klienta i ma ustaloną datę odbioru.
 CREATE OR ALTER PROCEDURE CreateOrder(
     @CustomerID int, 
@@ -50,8 +50,8 @@ AS BEGIN
         END
 
 
-        INSERT INTO Orders(CustomerID, OrderDate, CompletionDate, Paid, Canceled) 
-        VALUES (@CustomerID, @OrderDate, @CompletionDate, 0, 0)
+        INSERT INTO Orders(CustomerID, OrderDate, CompletionDate, Paid, Canceled, Completed) 
+        VALUES (@CustomerID, @OrderDate, @CompletionDate, 0, 0, 0)
 
         SET @OrderID = @@IDENTITY
 
@@ -64,10 +64,44 @@ AS BEGIN
         ROLLBACK;
         THROW;
     END CATCH
-    
 END
 GO
 --<
+
+--> Procedury
+--# CreateOrder
+--- Tworzy nowe zamówienie w systemie i ustawia je jako zrealizowane. Funkcja jes wykorzystywana, gdy klient kupuje towar na miejscu.
+CREATE OR ALTER PROCEDURE CreateInstantOrder(
+    @CustomerID int, 
+    @CompletionDate datetime, 
+    @OrderedItems OrderedItemsListT READONLY,
+    @OrderID int = NULL OUTPUT
+)
+AS BEGIN
+    BEGIN TRY
+    BEGIN TRANSACTION
+
+        EXEC CreateOrder 
+            @CustomerID = @CustomerID,
+            @OrderDate = @CompletionDate,
+            @CompletionDate = @CompletionDate,
+            @OrderedItems = @OrderedItems,
+            @OrderID = @OrderID OUTPUT;
+
+        UPDATE Orders
+        SET Completed = 1
+        WHERE OrderID = @OrderID
+        
+        COMMIT  
+    END TRY
+    BEGIN CATCH
+        ROLLBACK;
+        THROW;
+    END CATCH
+END
+GO
+--<
+
 
 
 --> Procedury
@@ -111,14 +145,3 @@ AS BEGIN
 END
 GO
 --<
-
-SELECT * FROM MenuItems WHERE MenuID = 2
-
-declare @p1 dbo.OrderedItemsListT
-insert into @p1 values(1, 1)
-insert into @p1 values(8, 1)
-EXEC CreateOrder @CustomerID = 1, @CompletionDate = '2022-01-05', @OrderedItems=@p1;
-
-SELECT * FROM OrderDetails
-SELECT * FROM Orders
-DELETE FROM Orders

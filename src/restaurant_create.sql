@@ -150,11 +150,13 @@ CREATE TABLE Orders (
     CompletionDate datetime  NULL,
     Paid bit  NOT NULL,
     Canceled bit NOT NULL,
+    Completed bit NOT NULL,
     InvoiceID varchar(16)  NULL,
     CONSTRAINT OrderedBeforeCompleted CHECK (CompletionDate >= OrderDate),
     CONSTRAINT Orders_pk PRIMARY KEY  (OrderID)
 );
 --<
+
 
 --> Tabele
 --# PrivateCustomers
