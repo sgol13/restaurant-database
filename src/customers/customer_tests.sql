@@ -8,3 +8,5 @@ EXEC AddCompanyCustomer
 
 DELETE FROM Customers
 DELETE FROM CompanyCustomers
+
+SELECT * FROM CustomerNames
