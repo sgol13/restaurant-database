@@ -40,7 +40,7 @@ GO
 
 --> Funkcje
 --# GetMenuForDay
---- Zwraca menu dostępne w danym dniu.
+--- Zwraca menu dostępne w danym dniu w przyszłości.
 CREATE OR ALTER FUNCTION GetMenuForDay(@Date datetime)
 RETURNS @DayMenu TABLE(
     MealID int,
@@ -51,6 +51,7 @@ RETURNS @DayMenu TABLE(
 BEGIN
 
     DECLARE @MenuID int = dbo.GetMenuIDForDay(@Date);
+    DECLARE @ShowSeaFood bit = dbo.CanOrderSeafood(GETDATE(), @Date)
 
     INSERT @DayMenu
         SELECT
@@ -62,6 +63,7 @@ BEGIN
             INNER JOIN MenuItems mi ON mi.MealID = m.MealID
         WHERE 
             mi.MenuID = @MenuID
+            AND (m.SeaFood = 0 OR @ShowSeaFood = 1)
     RETURN
 END
 GO
