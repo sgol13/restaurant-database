@@ -82,6 +82,11 @@ AS BEGIN
     BEGIN TRY;
     BEGIN TRANSACTION;
 
+        IF NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID) BEGIN
+            ;THROW 52000, 'The customer does not exist', 1
+            RETURN 
+        END
+
         DECLARE @PREV_Email nvarchar(64);
         DECLARE @PREV_Phone nvarchar(16);
         DECLARE @PREV_Address nvarchar(64);
@@ -139,6 +144,11 @@ AS BEGIN
     BEGIN TRY;
     BEGIN TRANSACTION;
 
+        IF NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID) BEGIN
+            ;THROW 52000, 'The customer does not exist', 1
+            RETURN 
+        END
+
         -- update values in Customers (common part)
         EXEC UpdateCustomer 
             @CustomerID = @CustomerID,
@@ -193,6 +203,11 @@ CREATE OR ALTER PROCEDURE UpdatePrivateCustomer(
 AS BEGIN
     BEGIN TRY;
     BEGIN TRANSACTION;
+
+        IF NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID) BEGIN
+            ;THROW 52000, 'The customer does not exist', 1
+            RETURN 
+        END
 
         -- update values in Customers (common part)
         EXEC UpdateCustomer 

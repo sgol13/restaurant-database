@@ -66,10 +66,10 @@ CREATE TABLE Invoices (
     CompanyName nvarchar(64)  NULL,
     Email nvarchar(64)  NULL,
     Phone varchar(16)  NULL,
-    Address nvarchar(64)  NULL,
-    City nvarchar(64)  NULL,
-    PostalCode varchar(16)  NULL,
-    Country nvarchar(64)  NULL,
+    Address nvarchar(64) NOT NULL,
+    City nvarchar(64) NOT NULL,
+    PostalCode varchar(16) NOT NULL,
+    Country nvarchar(64) NOT NULL,
     CONSTRAINT PositiveTotalAmount CHECK (TotalAmount > 0),
     CONSTRAINT Invoices_pk PRIMARY KEY  (InvoiceID)
 );

@@ -3,11 +3,26 @@
 --- Generuje fakturę w tabeli Invoices dla danego zamówienia.
 CREATE OR ALTER PROCEDURE CreateOrderInvoice(@OrderID int)
 AS BEGIN
+
+    DECLARE @CustomerID int = (SELECT CustomerID FROM Orders WHERE OrderID = @OrderID)
+
+    IF NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID) BEGIN
+        ;THROW 52000, 'The customer does not exist', 1
+        RETURN 
+    END
+
+    IF 0 = dbo.CanCreateInvoice(@CustomerID)
+    BEGIN
+        ;THROW 5200, 'The customer have not provided indispensable data to create an invoice', 1
+        RETURN
+    END
+
     IF (SELECT InvoiceID FROM Orders WHERE OrderID = @OrderID) IS NOT NULL
     BEGIN
         ;THROW 5200, 'Order already has an invoice', 1
         RETURN
     END
+    
     IF (SELECT Paid FROM Orders WHERE OrderID = @OrderID) = 0
     BEGIN
         ;THROW 5200, 'Order has not been paid yet', 1
@@ -45,6 +60,18 @@ GO
 --- Generuje fakturę dla danego klienta, dla danego miesiąca.
 CREATE OR ALTER PROCEDURE CreateMonthlyInvoice(@CustomerID Int, @Month int, @Year int)
 AS BEGIN
+
+    IF NOT EXISTS (SELECT * FROM Customers WHERE CustomerID = @CustomerID) BEGIN
+        ;THROW 52000, 'The customer does not exist', 1
+        RETURN 
+    END
+
+    IF 0 = dbo.CanCreateInvoice(@CustomerID)
+    BEGIN
+        ;THROW 5200, 'The customer have not provided indispensable data to create an invoice', 1
+        RETURN
+    END
+
     IF DATEFROMPARTS(@Year, @Month, DAY(EOMONTH(DATEFROMPARTS(@Year, @Month, 1)))) >= GETDATE()
     BEGIN
         ;THROW 5200, 'The month hasnt passed yet', 1
