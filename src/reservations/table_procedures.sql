@@ -1,6 +1,6 @@
 --> Procedury
 --# AddTable(Seats)
---- Dodaje nowy stolik
+--- Dodaje nowy stolik.
 CREATE OR ALTER PROCEDURE AddTable (@Seats int)
 AS BEGIN
     INSERT INTO Tables(Seats, Active)
@@ -12,7 +12,7 @@ GO
 
 --> Procedury
 --# DisableTable(TableID)
---- Oznacza stolik jako nieaktywny
+--- Oznacza stolik jako nieaktywny.
 CREATE OR ALTER PROCEDURE DisableTable (@TableID int)
 AS BEGIN
 
@@ -31,7 +31,7 @@ GO
 
 --> Procedury
 --# EnableTable(TableID)
---- Oznacza stolik jako aktywny
+--- Oznacza stolik jako aktywny.
 CREATE OR ALTER PROCEDURE EnableTable (@TableID int)
 AS BEGIN
 
@@ -46,3 +46,9 @@ AS BEGIN
 END
 GO
 --<
+
+
+
+
+
+
