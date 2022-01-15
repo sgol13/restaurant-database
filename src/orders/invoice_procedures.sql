@@ -14,6 +14,7 @@ AS BEGIN
         RETURN
     END
 
+    BEGIN TRY;
     BEGIN TRANSACTION;
         INSERT INTO Invoices(
             Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
@@ -28,7 +29,12 @@ AS BEGIN
 
         UPDATE Orders SET InvoiceID = @@IDENTITY
         WHERE OrderID = @OrderID
-    COMMIT;
+        COMMIT;
+    END TRY
+    BEGIN CATCH;
+        ROLLBACK;
+        THROW;
+    END CATCH
 END
 GO
 --<
@@ -45,6 +51,7 @@ AS BEGIN
         RETURN
     END
 
+    BEGIN TRY;
     BEGIN TRANSACTION;
         INSERT INTO Invoices(
             Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
@@ -62,7 +69,11 @@ AS BEGIN
         UPDATE Orders SET InvoiceID = @@IDENTITY
         WHERE Orders.CustomerID = @CustomerID AND Orders.InvoiceID IS NULL
                 AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
-    COMMIT;
+    END TRY
+    BEGIN CATCH;
+        ROLLBACK;
+        THROW;
+    END CATCH
 END
 GO
 --<
