@@ -31,7 +31,7 @@ CREATE OR ALTER PROCEDURE UpdateConstants(
         @PREV_D1 = D1,
         @PREV_WZ = WZ,
         @PREV_WK = WK
-    FROM Constants
+    FROM CurrentConstants
 
     INSERT INTO Constants(Date, Z1, K1, R1, K2, R2, D1, WZ, WK)
     VALUES (
