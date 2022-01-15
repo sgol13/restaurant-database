@@ -34,7 +34,8 @@ GO
 --# CalculatedOrders
 --- Pokazuje wszystkie zamówienia wraz z kwotami.
 CREATE OR ALTER VIEW CalculatedOrders
-AS SELECT 
+AS SELECT
+        OrderID,
         CustomerID,
         ReservationID,
         InvoiceID,
@@ -51,5 +52,22 @@ AS SELECT
         dbo.TotalOrderAmount(OrderID) TotalAmount
     FROM 
         Orders
+GO
+--<
+
+--> Widoki
+--# OrdersToCompleteToday
+--- Pokazuje wszystkie zamówienia na dzisiaj, które jeszcze nie zostały zrealizowane.
+CREATE OR ALTER VIEW OrdersToCompleteToday
+AS SELECT
+        CustomerID,
+        OrderID,
+        CompletionDate,
+        dbo.TotalOrderAmount(OrderID) TotalAmount
+    FROM 
+        Orders
+    WHERE
+        DATEDIFF(day, CompletionDate, GETDATE()) = 0
+        AND Completed = 0 AND Canceled = 0
 GO
 --<
