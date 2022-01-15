@@ -1,7 +1,9 @@
 --> Procedury
 --# UpdateConstants(...)
---- Aktualizuje podane stałe (nie zmieniając pozostałych).
+--- Aktualizuje podane stałe (nie zmieniając pozostałych). Domyślnie stałe wchodzą w życie natychmiastowo, 
+--- ale może zostać podana określona data.
 CREATE OR ALTER PROCEDURE UpdateConstants(
+    @Date datetime = NULL,
     @Z1 INT = NULL,
     @K1 INT = NULL,
     @R1 INT = NULL,
@@ -33,7 +35,7 @@ CREATE OR ALTER PROCEDURE UpdateConstants(
 
     INSERT INTO Constants(Date, Z1, K1, R1, K2, R2, D1, WZ, WK)
     VALUES (
-        GETDATE(),
+        ISNULL(@Date, GETDATE()),
         ISNULL(@Z1, @PREV_Z1),
         ISNULL(@K1, @PREV_K1),
         ISNULL(@R1, @PREV_R1),
