@@ -1,7 +1,7 @@
 --> Procedury
 --# AddReservation(StartDate, EndDate, CustomerID, Guests)
 --- Dodaje nową rezerwację stolika na określony termin
-CREATE OR ALTER PROCEDURE AddReservation (@StartDate datetime, @EndDate datetime, @CustomerID int, @Guests nvarchar(max), @Tables ReservationTablesList READONLY)
+CREATE OR ALTER PROCEDURE AddReservation (@StartDate datetime, @EndDate datetime, @CustomerID int, @Guests nvarchar(max), @Tables ReservationTablesListT READONLY)
 AS BEGIN
 
     IF dbo.AreTablesAvailable(@StartDate, @EndDate, @Tables) = 1
@@ -12,7 +12,7 @@ AS BEGIN
         DECLARE @ReservationID int = @@IDENTITY
 
         INSERT INTO TableDetails(TableID, ReservationID)
-        SELECT @TableID, @ReservationID FROM @Tables
+        SELECT TableID, @ReservationID FROM @Tables
     END
 END
 GO
