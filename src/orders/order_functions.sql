@@ -95,3 +95,36 @@ BEGIN
 END
 GO
 --<
+
+
+--> Funkcje
+--# CustomerOrders
+--- Pokazuje wszystkie zamówienia danego klienta
+CREATE OR ALTER FUNCTION CustomerOrders(@CustomerID int)
+RETURNS @MyOrders TABLE(
+    ReservationID int,
+    InvoiceID varchar(16),
+    OrderDate datetime,
+    CompletionDate datetime,
+    Status nvarchar(64),
+    TotalAmount money
+)
+BEGIN
+    INSERT @MyOrders
+        SELECT 
+            ReservationID,
+            InvoiceID,
+            OrderDate,
+            CompletionDate,
+            Status,
+            TotalAmount
+        FROM 
+            CalculatedOrders
+        WHERE 
+            CustomerID = @CustomerID
+        ORDER BY CompletionDate DESC
+    RETURN
+END
+GO
+--<
+

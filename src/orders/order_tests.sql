@@ -138,9 +138,10 @@ BEGIN TRANSACTION;
     EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-22 16:32', @OrderedItems = @items1;
     EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-23 16:32', @OrderedItems = @items1;
 
-    SELECT * FROM CurrentConstants
-    SELECT * FROM OrderDiscounts
-    SELECT * FROM CalculatedOrders WHERE CustomerID = 1;
+    -- SELECT * FROM CurrentConstants
+    -- SELECT * FROM OrderDiscounts
+    SELECT * FROM CalculatedOrders
+    SELECT * FROM dbo.CustomerOrders(1)
     
 ROLLBACK;
 END
