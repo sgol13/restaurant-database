@@ -66,3 +66,10 @@ WHERE MenuID IN (SELECT MenuID FROM Menu WHERE MenuId > 3)
 
 DELETE Menu
 WHERE Menu.MenuID > 3
+
+
+-- GetMenuForDay tests
+SELECT * FROM dbo.GetMenuForDay('2022-01-15')
+SELECT * FROM dbo.GetMenuForDay('2020-01-15')
+SELECT * FROM dbo.GetMenuForDay('2021-12-29')
+SELECT * FROM dbo.GetMenuForDay('2022-01-03')

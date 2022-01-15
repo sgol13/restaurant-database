@@ -121,6 +121,23 @@ ROLLBACK;
 END
 
 
+-- INTEGRATION TEST 1
+BEGIN
+BEGIN TRANSACTION;
+
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (4, 1);
+
+    DECLARE @OrderID int;
+    EXEC CreateInstantOrder @CustomerID =1, @CompletionDate = '2022-01-15 16:32', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    SELECT * FROM OrderDetails WHERE OrderID = @OrderID
+    SELECT * FROM Orders WHERE CustomerID = 1
+ROLLBACK;
+END
+
+
 
 SELECT * FROM Orders
 

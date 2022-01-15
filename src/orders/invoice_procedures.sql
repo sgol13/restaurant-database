@@ -74,7 +74,7 @@ AS BEGIN
 
     IF DATEFROMPARTS(@Year, @Month, DAY(EOMONTH(DATEFROMPARTS(@Year, @Month, 1)))) >= GETDATE()
     BEGIN
-        ;THROW 5200, 'The month hasnt passed yet', 1
+        ;THROW 5200, 'The month has not passed yet', 1
         RETURN
     END
 
