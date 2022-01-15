@@ -118,6 +118,7 @@ AS BEGIN
     END CATCH
 END
 GO
+--<
 
 --> Procedury
 --# UpdateCompanyCustomer(...)

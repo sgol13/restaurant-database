@@ -1,6 +1,6 @@
 CREATE TYPE OrderedItemsListT AS TABLE (
     MealID int NOT NULL UNIQUE,
-    Quantity int DEFAULT 1
+    Quantity int DEFAULT 1 CHECK (Quantity >= 1)
 )
 
 CREATE TYPE ReservationTablesListT AS TABLE(

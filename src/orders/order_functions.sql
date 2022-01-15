@@ -4,7 +4,7 @@
 CREATE OR ALTER FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
 BEGIN
     RETURN (
-        SELECT SUM(OD.Number * MI.Price) * (1-SUM(Discounts.Discount)) FROM Orders
+        SELECT SUM(OD.Quantity * MI.Price) * (1-SUM(Discounts.Discount)) FROM Orders
         JOIN OrderDetails AS OD ON OD.OrderID = Orders.OrderID
         JOIN MenuItems AS MI ON MI.MenuID = OD.MenuID AND MI.MealID = OD.MealID
         JOIN OrderDiscounts AS Discounts ON Discounts.OrderID = Orders.OrderID
@@ -15,10 +15,30 @@ END
 GO
 --<
 
+
+--> Funkcje
+--# CanOrderSeafood(OrderDate, CompletionDate)
+--- Zwraca informację czy w dniu OrderDate można złożyć zamówienie na owoce morza, które ma zostać odebrane w dniu CompletionDate
+CREATE OR ALTER FUNCTION CanOrderSeafood(@OrderDate datetime, @CompletionDate datetime) RETURNS bit
+BEGIN
+
+    IF NOT DATENAME(weekday, @CompletionDate) IN ('Thursday', 'Friday', 'Saturday')
+        RETURN 0;
+
+    IF NOT (@OrderDate < @CompletionDate AND (
+        DATENAME(week, @OrderDate) < DATENAME(week, @CompletionDate) OR
+            DATENAME(weekday, @OrderDate) IN ('Sunday', 'Monday')))
+        RETURN 0;
+
+    RETURN 1;
+END
+GO
+
+
 --> Funkcje
 --# IsDiscountType1(CustomerID)
 --- Sprawdza czy klientowi przysługuje w tej chwili rabat typu pierwszego (co najmniej Z1 zamówień za kwotę przynajmniej K1)
-CREATE OR ALTER FUNCTION IsDiscountType1(@CustomerID int) Returns bit
+CREATE OR ALTER FUNCTION IsDiscountType1(@CustomerID int) RETURNS bit
 BEGIN
     DECLARE @MinOrdersNumber int = (SELECT Z1 FROM CurrentConstants)
     DECLARE @MinSingleOrderAmount int  = (SELECT K1 FROM CurrentConstants)
