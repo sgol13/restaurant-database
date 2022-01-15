@@ -50,7 +50,7 @@ while start < len(text):
 
 latex = ""
 
-types = ["Tabele", "Widoki", "Procedury", "Funkcje"]
+types = ["Tabele", "Indeksy", "Widoki", "Procedury", "Funkcje"]
 
 for type in fragments:
     if type not in types:
