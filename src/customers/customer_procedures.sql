@@ -164,7 +164,7 @@ AS BEGIN
             NIP = ISNULL(@NIP, @PREV_NIP)
         WHERE CustomerID = @CustomerID
 
-        COMMIT;
+    COMMIT;
     END TRY
     BEGIN CATCH;
         ROLLBACK;
@@ -219,7 +219,7 @@ AS BEGIN
             LastName = ISNULL(@LastName, @LastName)
         WHERE CustomerID = @CustomerID
 
-        COMMIT;
+    COMMIT;
     END TRY
     BEGIN CATCH;
         ROLLBACK;
