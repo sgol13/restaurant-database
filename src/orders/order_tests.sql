@@ -125,18 +125,17 @@ END
 BEGIN
 BEGIN TRANSACTION;
 
-    DECLARE @items OrderedItemsListT;
-    INSERT INTO @items
-    VALUES (1, 1), (3, 2), (4, 1);
+    DECLARE @items1 OrderedItemsListT;
+    INSERT INTO @items1 VALUES (1, 1), (3, 2), (4, 1);
 
-    DECLARE @OrderID int;
-    EXEC CreateInstantOrder @CustomerID =1, @CompletionDate = '2022-01-15 16:32', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-15 16:32', @OrderedItems = @items1;
 
-    SELECT * FROM OrderDetails WHERE OrderID = @OrderID
-    SELECT * FROM Orders WHERE CustomerID = 1
+    SELECT * FROM CalculatedOrders WHERE CustomerID = 1
+    
 ROLLBACK;
 END
 
+SELECT * FROM CurrentMenu
 
 
 SELECT * FROM Orders

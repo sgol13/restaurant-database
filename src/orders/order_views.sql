@@ -28,3 +28,27 @@ AS SELECT O.OrderID, M.MealID, MI.MenuID, OD.Quantity, O.CustomerID, O.Reservati
 WHERE SeaFood = 1
 GO
 --<
+
+
+--> Widoki
+--# CalculatedOrders
+--- Pokazuje wszystkie zamówienia wraz z kwotami.
+CREATE OR ALTER VIEW CalculatedOrders
+AS SELECT 
+        CustomerID,
+        ReservationID,
+        InvoiceID,
+        OrderDate,
+        CompletionDate,
+        (CASE
+            WHEN Canceled = 1 THEN 'anulowane'
+            WHEN (Paid = 1 AND Completed = 0) THEN 'oplacone przed realizacja'
+            WHEN (Paid = 0 AND Completed = 1) THEN 'zrealizowane, do zaplaty'
+            WHEN (Paid = 1 AND Completed = 1) THEN 'zrealizowane i oplacone'
+            ELSE 'przyjete'
+        END
+        ) Status,
+        dbo.TotalOrderAmount(OrderID) TotalAmount
+    FROM 
+        Orders
+GO

@@ -58,7 +58,7 @@ BEGIN
             m.MealID,
             m.Name,
             (CASE WHEN m.SeaFood = 1 THEN 'TAK' ELSE 'NIE' END) SeaFood,
-            mi.Price
+            Price
         FROM Meals m
             INNER JOIN MenuItems mi ON mi.MealID = m.MealID
         WHERE 

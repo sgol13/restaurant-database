@@ -10,10 +10,8 @@ GO
 --# CurrentMenu
 --- Zwraca aktualne menu dla zamówień na ten sam dzień
 CREATE OR ALTER VIEW CurrentMenu
-AS SELECT MI.MenuID, MI.MealID, MI.Price
-FROM MenuItems MI 
-    INNER JOIN Menu M ON M.MenuID = MI.MenuID
-    INNER JOIN Meals ON Meals.MealID = MI.MealID
-WHERE StartDate <= GETDATE() AND GETDATE() <= EndDate AND Meals.SeaFood = 0
+AS 
+    SELECT MealID, Name, Price
+    FROM dbo.GetMenuForDay(GETDATE())
 GO
 --<
