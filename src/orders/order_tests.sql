@@ -126,11 +126,21 @@ BEGIN
 BEGIN TRANSACTION;
 
     DECLARE @items1 OrderedItemsListT;
-    INSERT INTO @items1 VALUES (1, 1), (3, 2), (4, 1);
+    INSERT INTO @items1 VALUES (1, 1), (3, 20), (4, 1);
 
     EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-15 16:32', @OrderedItems = @items1;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-16 16:32', @OrderedItems = @items1;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-17 16:32', @OrderedItems = @items1;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-18 16:32', @OrderedItems = @items1;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-19 16:32', @OrderedItems = @items1;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-20 16:32', @OrderedItems = @items1;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-21 16:32', @OrderedItems = @items1;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-22 16:32', @OrderedItems = @items1;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-23 16:32', @OrderedItems = @items1;
 
-    SELECT * FROM CalculatedOrders WHERE CustomerID = 1
+    SELECT * FROM CurrentConstants
+    SELECT * FROM OrderDiscounts
+    SELECT * FROM CalculatedOrders WHERE CustomerID = 1;
     
 ROLLBACK;
 END
@@ -139,6 +149,9 @@ SELECT * FROM CurrentMenu
 
 
 SELECT * FROM Orders
+DELETE FROM OrderDetails
+DELETE FROM OrderDiscounts
+DELETE FROM Orders
 
 SELECT * FROM MenuItems mi INNER JOIN Meals m ON m.MealID = mi.MealID WHERE MenuID = 3
 SELECT * FROM Menu

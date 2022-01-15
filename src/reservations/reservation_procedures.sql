@@ -157,8 +157,8 @@ AS BEGIN
         IF(@ReservationID IN (SELECT ReservationID FROM Orders))
             BEGIN
                 DECLARE @OrderID int;
-                SET @OrderID = (SELECT OrderID FROM Orders WHERE ReservationID = @ReservationID);
-                dbo.CancelOrder(@OrderID)
+                SET @OrderID = (SELECT OrderID FROM Orders WHERE ReservationID = @ReservationID)
+                EXEC CancelOrder @OrderID = @OrderID;
             END
 
         UPDATE Reservations SET Canceled = 1
@@ -180,7 +180,7 @@ GO
 --- Zakończenie rezerwacji (jeśli klient opuścił restaurację przed końcem rezerwacji)
 CREATE OR ALTER PROCEDURE FinishCurrentReservation(@ReservationID int)
 AS BEGIN
-    IF (@ReservationID IN (SELECT ReservationID FROM Reservations WHERE StartDate <= GETDATE() AND GETDATE() <= EndDate)) = 0
+    IF NOT (@ReservationID IN (SELECT ReservationID FROM Reservations WHERE StartDate <= GETDATE() AND GETDATE() <= EndDate))
     BEGIN
         ;THROW 52000, 'Wrong ReservationID or reservation has already ended or not started yet', 1
         RETURN
@@ -200,7 +200,7 @@ GO
 --- Wydłużenie czasu rezerwacji do preferowanej godziny jeśli to możliwe
 CREATE OR ALTER PROCEDURE ExtendCurrentReservation(@ReservationID int, @NewEndDate datetime)
 AS BEGIN
-    IF (@ReservationID IN (SELECT ReservationID FROM Reservations WHERE StartDate <= GETDATE() AND GETDATE() <= EndDate)) = 0
+    IF NOT (@ReservationID IN (SELECT ReservationID FROM Reservations WHERE StartDate <= GETDATE() AND GETDATE() <= EndDate))
     BEGIN
         ;THROW 52000, 'Wrong ReservationID or reservation has already ended or not started yet', 1
         RETURN

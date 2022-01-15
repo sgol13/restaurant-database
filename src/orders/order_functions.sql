@@ -1,13 +1,26 @@
 --> Funkcje
+--# TotalDiscountForOrder
+--- Zwraca całkowity rabat (w %) udzielony na dane zamówienie
+CREATE OR ALTER FUNCTION TotalDiscountForOrder(@OrderID int) RETURNS decimal(5, 2)
+BEGIN
+    RETURN (
+        SELECT COALESCE(SUM(Discount), 0)
+        FROM OrderDiscounts
+        WHERE OrderID = @OrderID
+    )
+END
+GO
+--<
+
+--> Funkcje
 --# TotalOrderAmount(OrderID)
 --- Zwraca całkowitą cenę zamówienia biorąc pod uwagę rabaty.
 CREATE OR ALTER FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
 BEGIN
     RETURN (
-        SELECT SUM(OD.Quantity * MI.Price) * (1-SUM(Discounts.Discount)) FROM Orders
-        JOIN OrderDetails AS OD ON OD.OrderID = Orders.OrderID
-        JOIN MenuItems AS MI ON MI.MenuID = OD.MenuID AND MI.MealID = OD.MealID
-        JOIN OrderDiscounts AS Discounts ON Discounts.OrderID = Orders.OrderID
+        SELECT SUM(OD.Quantity * MI.Price) * (1 - dbo.TotalDiscountForOrder(@OrderID)) FROM Orders
+            INNER JOIN OrderDetails AS OD ON OD.OrderID = Orders.OrderID
+            INNER JOIN MenuItems AS MI ON MI.MenuID = OD.MenuID AND MI.MealID = OD.MealID
         WHERE Orders.OrderID = @OrderID
         GROUP BY Orders.OrderID
     )

@@ -74,8 +74,8 @@ CREATE OR ALTER PROCEDURE CreateInstantOrder(
     @OrderID int = NULL OUTPUT
 )
 AS BEGIN
-    BEGIN TRY
-    BEGIN TRANSACTION
+    BEGIN TRY;
+    BEGIN TRANSACTION;
 
         EXEC CreateOrder 
             @CustomerID = @CustomerID,
@@ -84,9 +84,10 @@ AS BEGIN
             @OrderedItems = @OrderedItems,
             @OrderID = @OrderID OUTPUT;
 
-        UPDATE Orders SET Completed = 1, Paid = 1 WHERE OrderID = @OrderID
+        UPDATE Orders SET Completed = 1 WHERE OrderID = @OrderID;
+        EXEC PayForOrder @OrderID = @OrderID;
         
-    COMMIT  
+    COMMIT;
     END TRY
     BEGIN CATCH
         ROLLBACK;
@@ -172,7 +173,7 @@ AS BEGIN
         -- update status
         UPDATE Orders SET Paid = 1 WHERE OrderID = @OrderID
 
-        DECLARE @CustomerID int;(SELECT CustomerID FROM Orders WHERE OrderID = @OrderID)
+        DECLARE @CustomerID int = (SELECT CustomerID FROM Orders WHERE OrderID = @OrderID)
         DECLARE @CompletionDate datetime;
 
         SELECT 
@@ -183,14 +184,14 @@ AS BEGIN
 
         -- give discount type 1
         IF 1 = dbo.IsDiscountType1(@CustomerID, @CompletionDate) BEGIN
-            INSERT INTO OrderDiscounts 
-            VALUES (@OrderID, (SELECT R1 FROM CurrentConstants) / 100, 1)
+            INSERT INTO OrderDiscounts (OrderID, Discount, DiscountType)
+            VALUES (@OrderID, (SELECT R1 FROM CurrentConstants) / 100.0, 1)
         END
 
         -- give discount type 2
         IF 1 = dbo.IsDiscountType2(@CustomerID, @CompletionDate) BEGIN
-            INSERT INTO OrderDiscounts 
-            VALUES (@OrderID, (SELECT R2 FROM CurrentConstants) / 100, 1)
+            INSERT INTO OrderDiscounts (OrderID, Discount, DiscountType)
+            VALUES (@OrderID, (SELECT R2 FROM CurrentConstants) / 100.0, 2)
         END
 
     COMMIT
