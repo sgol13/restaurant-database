@@ -74,3 +74,5 @@ SELECT * FROM dbo.GetMenuForDay('2020-01-15')
 SELECT * FROM dbo.GetMenuForDay('2021-12-29')
 SELECT * FROM dbo.GetMenuForDay('2022-01-03')
 SELECT * FROM dbo.GetMenuForDay('2022-01-16')
+
+SELECT * FROM CurrentMenu
