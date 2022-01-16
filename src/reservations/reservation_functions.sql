@@ -1,7 +1,7 @@
 --> Funkcje
 --# AreTablesAvailable(StartDate, EndDate, Tables)
 --- Sprawdza czy wszystkie stoliki z listy są dostępne w danym przedziale czasowym.
-CREATE OR ALTER FUNCTION AreTablesAvailable(@StartDate datetime, @EndDate datetime, @Tables ReservationTablesList READONLY)
+CREATE OR ALTER FUNCTION AreTablesAvailable(@StartDate datetime, @EndDate datetime, @Tables ReservationTablesListT READONLY)
 RETURNS BIT
 BEGIN
     IF (( SELECT COUNT (*) FROM ( (SELECT TableID FROM @Tables) EXCEPT (SELECT TableID FROM Tables WHERE dbo.TableAvailableAtTime(TableID, @StartDate, @EndDate) = 1)  ) as TTI) != 0)

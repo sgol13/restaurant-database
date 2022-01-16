@@ -20,6 +20,8 @@ GO
 --<
 
 --> Widoki
+--# ReservationsDetails 
+--- Pokazuje szczegóły rezerwacji.
 CREATE OR ALTER VIEW ReservationsDetails
 AS
     ((SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'not accepted' as Status
@@ -38,3 +40,4 @@ AS
     FROM Reservations
     WHERE Accepted = 1 AND Canceled = 1))
 GO
+--<

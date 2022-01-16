@@ -2,7 +2,7 @@
 -- Last modification date: 2022-01-02 11:30:38.749
 
 --> Tabele
---# Firmy
+--# CompanyCustomers
 --- Przechowuje informacje o firmach: numer firmy, nazwa firmy, (opcjonalny) NIP.
 CREATE TABLE CompanyCustomers (
     CustomerID int  NOT NULL,
