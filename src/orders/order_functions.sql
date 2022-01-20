@@ -46,7 +46,7 @@ BEGIN
     RETURN 1;
 END
 GO
-
+--<
 
 --> Funkcje
 --# IsDiscountType1(CustomerID)
@@ -128,3 +128,22 @@ END
 GO
 --<
 
+--> Funkcje
+--# GetOrderDetails
+--- Pokazuje szczegóły konkretnego zamówienia.
+CREATE OR ALTER FUNCTION GetOrderDetails(@OrderID int)
+RETURNS TABLE
+AS RETURN
+    SELECT
+        m.MealID,
+        m.Name,
+        mi.Price,
+        od.Quantity,
+        (od.Quantity * Price) TotalPrice
+    FROM
+        OrderDetails od
+        INNER JOIN Meals m ON m.MealID = od.MealID
+        INNER JOIN MenuItems mi ON mi.MealID = od.MealID AND mi.MenuID = od.MenuID
+    WHERE
+        od.OrderID = @OrderID
+GO

@@ -146,7 +146,180 @@ BEGIN TRANSACTION;
 ROLLBACK;
 END
 
-SELECT * FROM CurrentMenu
+-- CANCEL TEST OK
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (6, 1);
+
+    DECLARE @OrderID int;
+    EXEC CreateOrder @CustomerID =1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-15', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    SELECT * FROM Orders WHERE CustomerID = 1
+
+    EXEC CancelOrder @OrderID = @OrderID;
+
+    SELECT * FROM Orders WHERE CustomerID = 1
+
+ROLLBACK;
+END
+
+
+-- CANCEL TEST - error expected
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (6, 1);
+
+    DECLARE @OrderID int;
+    EXEC CreateOrder @CustomerID =1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-15', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    EXEC CompleteOrder @OrderID = @OrderID;
+
+    EXEC CancelOrder @OrderID = @OrderID;
+
+ROLLBACK;
+END
+
+
+-- CANCEL TEST - error expected
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (6, 1);
+
+    DECLARE @OrderID int;
+    EXEC CreateOrder @CustomerID =1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-15', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    EXEC CancelOrder @OrderID = @OrderID;
+
+    EXEC CancelOrder @OrderID = @OrderID;
+
+ROLLBACK;
+END
+
+
+-- COMPLETE AND PAY TEST - OK expected
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (6, 1);
+
+    DECLARE @OrderID int;
+    EXEC CreateOrder @CustomerID =1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-15', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    EXEC CompleteOrder @OrderID = @OrderID;
+    EXEC PayForOrder @OrderID = @OrderID;
+
+    SELECT * FROM Orders WHERE CustomerID = 1
+
+ROLLBACK;
+END
+
+
+-- COMPLETE AND PAY TEST - OK expected
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (6, 1);
+
+    DECLARE @OrderID int;
+    EXEC CreateOrder @CustomerID =1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-15', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    EXEC PayForOrder @OrderID = @OrderID;
+    EXEC CompleteOrder @OrderID = @OrderID;
+
+    SELECT * FROM Orders WHERE CustomerID = 1
+
+ROLLBACK;
+END
+
+-- COMPLETE AND PAY TEST - error expected
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (6, 1);
+
+    DECLARE @OrderID int;
+    EXEC CreateOrder @CustomerID =1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-15', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    EXEC CancelOrder @OrderID = @OrderID;
+
+    EXEC PayForOrder @OrderID = @OrderID;
+    EXEC CompleteOrder @OrderID = @OrderID;
+
+    SELECT * FROM Orders WHERE CustomerID = 1
+
+ROLLBACK;
+END
+
+-- CURRENT WEEK SEAFOOD VIEW TEST
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (6, 1);
+
+    EXEC CreateOrder @CustomerID = 1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-21', @OrderedItems = @items;
+    EXEC CreateOrder @CustomerID = 1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-22', @OrderedItems = @items;
+
+
+    DECLARE @items2 OrderedItemsListT;
+    INSERT INTO @items2
+    VALUES (1, 1), (3, 2);
+
+    EXEC CreateOrder @CustomerID = 1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-23', @OrderedItems = @items2;
+    EXEC CreateOrder @CustomerID = 1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-24', @OrderedItems = @items2;
+
+    SELECT * FROM CurrentWeekSeaFoodOrders
+
+ROLLBACK;
+END
+
+-- ORDERS TO COMPLETE TODAY TEST
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2);
+
+    DECLARE @OrderID int;
+    EXEC CreateOrder @CustomerID =1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-20 19:40', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    EXEC CancelOrder @OrderID = @OrderID;
+
+    EXEC CreateOrder @CustomerID = 1, @CompletionDate = '2022-01-20 19:50', @OrderedItems = @items;
+    EXEC CreateOrder @CustomerID = 1, @CompletionDate = '2022-01-20 20:50', @OrderedItems = @items;
+
+    SELECT * FROM OrdersToCompleteToday
+
+ROLLBACK;
+END
+
+
+-- GET ORDER DETAILS TEST
+-- ORDERS TO COMPLETE TODAY TEST
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items
+    VALUES (1, 1), (3, 2), (6, 5);
+
+    DECLARE @OrderID int;
+    EXEC CreateOrder @CustomerID =1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-20 19:40', @OrderedItems = @items, @OrderID = @OrderID OUTPUT;
+
+    SELECT * FROM dbo.GetOrderDetails(@OrderID)
+
+ROLLBACK;
+END
+
+SELECT * FROM Meals
 
 
 SELECT * FROM Orders

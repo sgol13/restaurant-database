@@ -65,7 +65,7 @@ GO
 --<
 
 --> Procedury
---# CreateOrder
+--# CreateInstantOrder
 --- Tworzy nowe zamówienie w systemie i ustawia je jako zrealizowane oraz opłacone. Funkcja jes wykorzystywana, gdy klient kupuje towar na miejscu.
 CREATE OR ALTER PROCEDURE CreateInstantOrder(
     @CustomerID int, 
@@ -219,7 +219,7 @@ AS BEGIN
             ;THROW 52000, 'The order does not exist', 1
             RETURN 
         END
-
+        
         -- check if the order was canceled
         IF 1 = (SELECT Canceled FROM Orders WHERE OrderID = @OrderID) BEGIN
             ;THROW 52000, 'The order was canceled', 1
