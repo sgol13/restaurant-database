@@ -17,13 +17,15 @@ GO
 --- Zwraca całkowitą cenę zamówienia biorąc pod uwagę rabaty.
 CREATE OR ALTER FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
 BEGIN
-    RETURN (
+    DECLARE @Amount money = (
         SELECT SUM(OD.Quantity * MI.Price) * (1 - dbo.TotalDiscountForOrder(@OrderID)) FROM Orders
             INNER JOIN OrderDetails AS OD ON OD.OrderID = Orders.OrderID
             INNER JOIN MenuItems AS MI ON MI.MenuID = OD.MenuID AND MI.MealID = OD.MealID
         WHERE Orders.OrderID = @OrderID
         GROUP BY Orders.OrderID
     )
+
+    RETURN CASE WHEN @Amount IS NOT NULL THEN @Amount ELSE 0 END
 END
 GO
 --<

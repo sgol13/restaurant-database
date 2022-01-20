@@ -13,7 +13,7 @@ AS BEGIN
 
     IF 0 = dbo.CanCreateInvoice(@CustomerID)
     BEGIN
-        ;THROW 52000, 'The customer have not provided indispensable data to create an invoice', 1
+        ;THROW 52000, 'The customer has not provided indispensable data to create an invoice', 1
         RETURN
     END
 
@@ -72,7 +72,7 @@ AS BEGIN
 
     IF 0 = dbo.CanCreateInvoice(@CustomerID)
     BEGIN
-        ;THROW 52000, 'The customer have not provided indispensable data to create an invoice', 1
+        ;THROW 52000, 'The customer has not provided indispensable data to create an invoice', 1
         RETURN
     END
 
@@ -84,10 +84,13 @@ AS BEGIN
 
     BEGIN TRY;
     BEGIN TRANSACTION;
+
+        DECLARE  @InvoiceID varchar(16) = dbo.CreateInvoiceID()
+
         INSERT INTO Invoices(
-            Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
+             InvoiceID, Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
         )
-        SELECT GETDATE(), Customers.CustomerID, SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
+        SELECT @InvoiceID, GETDATE(), Customers.CustomerID, SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
                 MAX(CompanyName), MAX(Email), MAX(Phone), MAX(Address), MAX(City), MAX(PostalCode), MAX(Country) 
         FROM Customers
             LEFT JOIN Orders ON Orders.CustomerID = Customers.CustomerID AND Orders.InvoiceID IS NULL
@@ -97,9 +100,11 @@ AS BEGIN
         WHERE Customers.CustomerID = @CustomerID
         GROUP BY Customers.CustomerID
 
-        UPDATE Orders SET InvoiceID = @@IDENTITY
+        UPDATE Orders SET InvoiceID = @InvoiceID
         WHERE Orders.CustomerID = @CustomerID AND Orders.InvoiceID IS NULL
                 AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
+
+    COMMIT;
     END TRY
     BEGIN CATCH;
         ROLLBACK;
