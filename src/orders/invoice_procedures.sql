@@ -13,38 +13,39 @@ AS BEGIN
 
     IF 0 = dbo.CanCreateInvoice(@CustomerID)
     BEGIN
-        ;THROW 5200, 'The customer have not provided indispensable data to create an invoice', 1
+        ;THROW 52000, 'The customer have not provided indispensable data to create an invoice', 1
         RETURN
     END
 
     IF (SELECT InvoiceID FROM Orders WHERE OrderID = @OrderID) IS NOT NULL
     BEGIN
-        ;THROW 5200, 'Order already has an invoice', 1
+        ;THROW 52000, 'Order already has an invoice', 1
         RETURN
     END
     
     IF (SELECT Paid FROM Orders WHERE OrderID = @OrderID) = 0
     BEGIN
-        ;THROW 5200, 'Order has not been paid yet', 1
+        ;THROW 52000, 'Order has not been paid yet', 1
         RETURN
     END
 
     BEGIN TRY;
     BEGIN TRANSACTION;
+    
         INSERT INTO Invoices(
-            Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
+            InvoiceID, Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
         )
-        SELECT GETDATE(), Customers.CustomerID, dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
+        SELECT dbo.CreateInvoiceID(), GETDATE(), Customers.CustomerID, dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
                     Email, Phone, Address, City, PostalCode, Country 
         FROM Orders
-            JOIN Customers ON Customers.CustomerID = Orders.OrderID
+            JOIN Customers ON Customers.CustomerID = Orders.CustomerID
             LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
             LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
         WHERE Orders.OrderID = @OrderID;
 
         UPDATE Orders SET InvoiceID = @@IDENTITY
         WHERE OrderID = @OrderID
-        COMMIT;
+    COMMIT;
     END TRY
     BEGIN CATCH;
         ROLLBACK;
@@ -68,13 +69,13 @@ AS BEGIN
 
     IF 0 = dbo.CanCreateInvoice(@CustomerID)
     BEGIN
-        ;THROW 5200, 'The customer have not provided indispensable data to create an invoice', 1
+        ;THROW 52000, 'The customer have not provided indispensable data to create an invoice', 1
         RETURN
     END
 
     IF DATEFROMPARTS(@Year, @Month, DAY(EOMONTH(DATEFROMPARTS(@Year, @Month, 1)))) >= GETDATE()
     BEGIN
-        ;THROW 5200, 'The month has not passed yet', 1
+        ;THROW 52000, 'The month has not passed yet', 1
         RETURN
     END
 
