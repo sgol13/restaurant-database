@@ -31,11 +31,13 @@ AS BEGIN
 
     BEGIN TRY;
     BEGIN TRANSACTION;
+
+        DECLARE  @InvoiceID varchar(16) = dbo.CreateInvoiceID()
     
         INSERT INTO Invoices(
             InvoiceID, Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
         )
-        SELECT dbo.CreateInvoiceID(), GETDATE(), Customers.CustomerID, dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
+        SELECT @InvoiceID, GETDATE(), Customers.CustomerID, dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
                     Email, Phone, Address, City, PostalCode, Country 
         FROM Orders
             JOIN Customers ON Customers.CustomerID = Orders.CustomerID
@@ -43,8 +45,9 @@ AS BEGIN
             LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
         WHERE Orders.OrderID = @OrderID;
 
-        UPDATE Orders SET InvoiceID = @@IDENTITY
+        UPDATE Orders SET InvoiceID = @InvoiceID
         WHERE OrderID = @OrderID
+
     COMMIT;
     END TRY
     BEGIN CATCH;
