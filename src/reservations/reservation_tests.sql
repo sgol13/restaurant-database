@@ -229,6 +229,8 @@ BEGIN
 BEGIN TRY
 BEGIN TRANSACTION;
 
+    DBCC CHECKIDENT (Reservations, RESEED, 0)
+
     DECLARE @tables1 ReservationTablesListT;
     INSERT INTO @tables1
     VALUES (2), (4), (6);
@@ -246,16 +248,51 @@ BEGIN TRANSACTION;
     PRINT dbo.CanReserveOnline(1, '2022-01-22 15:39:50', @items)
     EXEC PrivateOnlineReservation @StartDate='2022-01-22 14:00', @EndDate='2022-01-22 14:30', @CustomerID=1, @Tables=@tables1, @OrderedItems=@items;
 
-    --     @OrderDate datetime = NULL,
-    -- @StartDate datetime,
-    -- @EndDate datetime,
-    -- @CustomerID int,
-    -- @Guests nvarchar(max) = NULL,
-    -- @Tables ReservationTablesListT READONLY,
-    -- @OrderedItems OrderedItemsListT READONLY
+    -- EXEC AcceptReservation @ReservationID =1;
+    EXEC CancelReservation @ReservationID = 1;
 
     SELECT * FROM ReservationsDetails
-    SELECT * FROM Orders
+    SELECT * FROM CalculatedOrders
+
+IF @@TRANCOUNT > 0
+    ROLLBACK;
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT > 0
+        ROLLBACK;
+THROW;
+END CATCH
+END
+
+
+-- COMPANY ONLINE RESERVATION
+BEGIN
+BEGIN TRY
+BEGIN TRANSACTION;
+
+    DBCC CHECKIDENT (Reservations, RESEED, 0)
+
+    DECLARE @tables1 ReservationTablesListT;
+    INSERT INTO @tables1
+    VALUES (2), (4), (6);
+    
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items VALUES (1, 1), (3, 20), (4, 1);
+
+    -- DECLARE @items OrderedItemsListT;
+    -- INSERT INTO @items VALUES (1, 1), (3, 20), (6, 1);
+
+    EXEC CreateInstantOrder @CustomerID = 5, @CompletionDate = '2022-01-18 16:32', @OrderedItems = @items;
+    EXEC CreateInstantOrder @CustomerID = 5, @CompletionDate = '2022-01-18 17:32', @OrderedItems = @items;
+
+    PRINT dbo.CanReserveOnline(1, '2022-01-22 15:39:50', @items)
+    EXEC CompanyOnlineReservation @StartDate='2022-01-22 14:00', @EndDate='2022-01-22 14:30', @CustomerID=6, @Tables=@tables1, @OrderedItems=@items;
+
+    EXEC AcceptReservation @ReservationID =1;
+    -- EXEC CancelReservation @ReservationID = 1;
+
+    SELECT * FROM ReservationsDetails
+    SELECT * FROM CalculatedOrders
 
 IF @@TRANCOUNT > 0
     ROLLBACK;
@@ -271,3 +308,7 @@ END
 SELECT * FROM Tables
 
 SELECT * FROM TableDetails
+-- DELETE FROM Orders
+-- DELETE FROM OrderDetails
+-- DELETE FROM TableDetails
+-- DELETE FROM Reservations

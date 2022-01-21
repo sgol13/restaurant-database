@@ -63,7 +63,7 @@ GO
 
 --> Procedury
 --# PrivateOnlineReservation()
---- Tworzy rezerwację pojedynczego stolika dla klienta indywidualnego wraz ze złożeniem zamówienia
+--- Tworzy rezerwację dla klienta indywidualnego wraz ze złożeniem zamówienia
 CREATE OR ALTER PROCEDURE PrivateOnlineReservation (
     @OrderDate datetime = NULL,
     @StartDate datetime,
@@ -84,6 +84,64 @@ AS BEGIN
 
         IF 0 = dbo.CanReserveOnline(@CustomerID, @StartDate, @OrderedItems) BEGIN
             ;THROW 52000, 'The customer is not allowed to make an online reservation', 1
+            RETURN
+        END
+
+        DECLARE @ReservationID int;
+        EXEC AddReservation 
+            @StartDate = @StartDate,
+            @EndDate = @EndDate,
+            @Accepted = 0,
+            @CustomerID = @CustomerID,
+            @Tables = @Tables,
+            @ReservationID = @ReservationID OUTPUT;
+
+        IF @OrderDate IS NULL
+            SET @OrderDate = GETDATE()
+
+        DECLARE @OrderID int;
+        EXEC CreateOrder
+            @CustomerID = @CustomerID,
+            @OrderDate = @OrderDate,
+            @CompletionDate = @StartDate, 
+            @OrderedItems = @OrderedItems,
+            @OrderID = @OrderID OUTPUT;
+
+
+        UPDATE Orders
+        SET ReservationID = @ReservationID
+        WHERE OrderID = @OrderID
+
+    COMMIT
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
+        THROW;
+    END CATCH
+END
+GO
+--<
+
+
+--> Procedury
+--# CompanyOnlineReservation
+--- Tworzy rezerwację dla klienta firmowego połązoną ze złożeniem zamówienia.
+CREATE OR ALTER PROCEDURE CompanyOnlineReservation  (
+    @OrderDate datetime = NULL,
+    @StartDate datetime,
+    @EndDate datetime,
+    @CustomerID int,
+    @Guests nvarchar(max) = NULL,
+    @Tables ReservationTablesListT READONLY,
+    @OrderedItems OrderedItemsListT READONLY
+)
+AS BEGIN
+    BEGIN TRY
+    BEGIN TRANSACTION
+
+        IF NOT EXISTS (SELECT * FROM CompanyCustomers WHERE CustomerID = @CustomerID) BEGIN
+            ;THROW 52000, 'It is not a company customer', 1
             RETURN
         END
 
@@ -170,7 +228,7 @@ AS BEGIN
 
         IF(SELECT Canceled FROM Reservations WHERE ReservationID = @ReservationID) = 1
         BEGIN
-            ;THROW 52000, 'Reservation already cancelled', 1
+            ;THROW 52000, 'Reservation already canceled', 1
             RETURN
         END
 

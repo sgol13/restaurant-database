@@ -65,6 +65,7 @@ END
 GO
 --<
 
+
 --> Procedury
 --# CreateInstantOrder
 --- Tworzy nowe zamówienie w systemie i ustawia je jako zrealizowane oraz opłacone. Funkcja jes wykorzystywana, gdy klient kupuje towar na miejscu.
