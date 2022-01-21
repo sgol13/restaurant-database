@@ -23,15 +23,28 @@ BEGIN
     DECLARE @StartDate datetime;
     DECLARE @EndDate datetime;
 
-    SELECT @StartDate = StartDate, @EndDate = @EndDate
-    FROM Menu WHERE MenuID = @MenuID
+    SELECT 
+        @StartDate = StartDate, 
+        @EndDate = @EndDate
+    FROM 
+        Menu 
+    WHERE 
+        MenuID = @MenuID
 
     INSERT @MenuOrders
-    SELECT OrderID, CompletionDate, Customers.CustomerID, [Name], Phone, Email
-    From Orders
-    JOIN CustomerNames ON CustomerNames.CustomerID = Orders.CustomerID
-    JOIN Customers ON Customers.CustomerID = Orders.CustomerID
-    WHERE CompletionDate BETWEEN @StartDate AND @EndDate
+        SELECT 
+            OrderID, 
+            CompletionDate, 
+            Customers.CustomerID, 
+            Name, 
+            Phone, 
+            Email
+        FROM 
+            Orders
+            JOIN CustomerNames ON CustomerNames.CustomerID = Orders.CustomerID
+            JOIN Customers ON Customers.CustomerID = Orders.CustomerID
+        WHERE 
+            CompletionDate BETWEEN @StartDate AND @EndDate
     RETURN
 END
 GO

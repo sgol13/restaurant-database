@@ -4,9 +4,12 @@
 CREATE OR ALTER FUNCTION TotalDiscountForOrder(@OrderID int) RETURNS decimal(5, 2)
 BEGIN
     RETURN (
-        SELECT COALESCE(SUM(Discount), 0)
-        FROM OrderDiscounts
-        WHERE OrderID = @OrderID
+        SELECT 
+            COALESCE(SUM(Discount), 0)
+        FROM 
+            OrderDiscounts
+        WHERE 
+            OrderID = @OrderID
     )
 END
 GO
@@ -18,11 +21,16 @@ GO
 CREATE OR ALTER FUNCTION TotalOrderAmount(@OrderID int) RETURNS money
 BEGIN
     DECLARE @Amount money = (
-        SELECT SUM(OD.Quantity * MI.Price) * (1 - dbo.TotalDiscountForOrder(@OrderID)) FROM Orders
+        SELECT 
+            SUM(OD.Quantity * MI.Price) * (1 - dbo.TotalDiscountForOrder(@OrderID)) 
+        FROM 
+            Orders
             INNER JOIN OrderDetails AS OD ON OD.OrderID = Orders.OrderID
             INNER JOIN MenuItems AS MI ON MI.MenuID = OD.MenuID AND MI.MealID = OD.MealID
-        WHERE Orders.OrderID = @OrderID
-        GROUP BY Orders.OrderID
+        WHERE 
+            Orders.OrderID = @OrderID
+        GROUP BY
+            Orders.OrderID
     )
 
     RETURN CASE WHEN @Amount IS NOT NULL THEN @Amount ELSE 0 END
@@ -60,13 +68,15 @@ BEGIN
     DECLARE @MinSingleOrderAmount int  = (SELECT K1 FROM CurrentConstants)
 
     DECLARE @BigOrdersNumber money = (
-        SELECT COUNT(1)
-        FROM Orders o 
+        SELECT 
+            COUNT(1)
+        FROM 
+            Orders o 
         WHERE 
-            o.CustomerID = @CustomerID AND 
-            dbo.TotalOrderAmount(o.OrderID) > @MinSingleOrderAmount AND 
-            o.Completed = 1 AND
-            o.CompletionDate < @CheckDate
+            o.CustomerID = @CustomerID
+            AND dbo.TotalOrderAmount(o.OrderID) > @MinSingleOrderAmount
+            AND o.Completed = 1
+            AND o.CompletionDate < @CheckDate
     )
 
     RETURN CASE WHEN (@BigOrdersNumber >= @MinOrdersNumber) THEN 1 ELSE 0 END
@@ -84,13 +94,15 @@ BEGIN
     DECLARE @LastDays int  = (SELECT D1 FROM CurrentConstants)
 
     DECLARE @TotalAmount money = (
-        SELECT SUM(dbo.TotalOrderAmount(o.OrderID))
-        FROM Orders o 
+        SELECT 
+            SUM(dbo.TotalOrderAmount(OrderID))
+        FROM 
+            Orders
         WHERE
-            o.CustomerID = @CustomerID AND 
-            DATEDIFF(DAY, o.OrderDate, GETDATE()) <= @LastDays AND 
-            o.Completed = 1 AND
-            o.CompletionDate < @CheckDate
+            CustomerID = @CustomerID
+            AND DATEDIFF(DAY, OrderDate, GETDATE()) <= @LastDays
+            AND Completed = 1
+            AND CompletionDate < @CheckDate
     )
 
     RETURN CASE WHEN @TotalAmount >= @MinTotalAmount THEN 1 ELSE 0 END
@@ -103,32 +115,22 @@ GO
 --# CustomerOrders
 --- Pokazuje wszystkie zamówienia danego klienta
 CREATE OR ALTER FUNCTION CustomerOrders(@CustomerID int)
-RETURNS @MyOrders TABLE(
-    ReservationID int,
-    InvoiceID varchar(16),
-    OrderDate datetime,
-    CompletionDate datetime,
-    Status nvarchar(64),
-    TotalAmount money
-)
-BEGIN
-    INSERT @MyOrders
-        SELECT 
-            ReservationID,
-            InvoiceID,
-            OrderDate,
-            CompletionDate,
-            Status,
-            TotalAmount
-        FROM 
-            CalculatedOrders
-        WHERE 
-            CustomerID = @CustomerID
-        ORDER BY CompletionDate DESC
-    RETURN
-END
+RETURNS TABLE
+AS RETURN
+    SELECT 
+        ReservationID,
+        InvoiceID,
+        OrderDate,
+        CompletionDate,
+        Status,
+        TotalAmount
+    FROM 
+        CalculatedOrders
+    WHERE 
+        CustomerID = @CustomerID
 GO
 --<
+
 
 --> Funkcje
 --# GetOrderDetails
