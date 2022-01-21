@@ -37,8 +37,8 @@ BEGIN
             CompletionDate, 
             Customers.CustomerID, 
             Name, 
-            Phone, 
-            Email
+            Customers.Phone, 
+            Customers.Email
         FROM 
             Orders
             JOIN CustomerNames ON CustomerNames.CustomerID = Orders.CustomerID
