@@ -21,10 +21,11 @@ AS BEGIN
         INSERT INTO CompanyCustomers (CustomerID, CompanyName, NIP)
         VALUES (@@IDENTITY, @CompanyName, @NIP)
 
-        COMMIT;
+    COMMIT;
     END TRY
     BEGIN CATCH;
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END
@@ -49,6 +50,7 @@ CREATE OR ALTER PROCEDURE AddPrivateCustomer(
 AS BEGIN
     BEGIN TRY;
     BEGIN TRANSACTION;
+
         INSERT INTO Customers (Email, Phone, Address, City, PostalCode, Country)
         VALUES (@Email, @Phone, @Address, @City, @PostalCode, @Country)
         INSERT INTO PrivateCustomers (CustomerID, FirstName, LastName) 
@@ -57,7 +59,8 @@ AS BEGIN
         COMMIT;
     END TRY
     BEGIN CATCH;
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END
@@ -118,7 +121,8 @@ AS BEGIN
         COMMIT;
     END TRY
     BEGIN CATCH;
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END
@@ -177,7 +181,8 @@ AS BEGIN
     COMMIT;
     END TRY
     BEGIN CATCH;
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END
@@ -237,7 +242,8 @@ AS BEGIN
     COMMIT;
     END TRY
     BEGIN CATCH;
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END
@@ -283,7 +289,8 @@ AS BEGIN
     COMMIT;
     END TRY
     BEGIN CATCH;
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END
