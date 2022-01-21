@@ -189,28 +189,34 @@ END
 
 -- EXTEND RESERVATION - exptected error
 BEGIN
+BEGIN TRY
 BEGIN TRANSACTION;
     DECLARE @ResID int;
     
     DECLARE @tables1 ReservationTablesListT;
     INSERT INTO @tables1
     VALUES (2), (4), (6);
-
-    EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21 08:00', @EndDate='2022-01-21 09:00', @Tables = @tables1, @ReservationID = @ResID OUTPUT;
+    EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21 15:00', @EndDate='2022-01-21 16:00', @Tables = @tables1;
 
     DECLARE @tables2 ReservationTablesListT;
     INSERT INTO @tables2
-    VALUES (2), (4), (6);
-    EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21', @EndDate='2022-01-21 05:25', @Tables = @tables2, @ReservationID = @ResID OUTPUT;
+    VALUES (2), (3), (5);
+    EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21', @EndDate='2022-01-21 14:00', @Tables = @tables2, @ReservationID = @ResID OUTPUT;
 
-    EXEC ExtendCurrentReservation @ReservationID = @ResID, @NewEndDate = '2022-01-21 10:00';
+    EXEC ExtendCurrentReservation @ReservationID = @ResID, @NewEndDate = '2022-01-21 17:00';
 
     SELECT * FROM ReservationsDetails
 
 ROLLBACK;
+END TRY
+BEGIN CATCH
+ROLLBACK;
+THROW;
+END CATCH
 END
+
 
 SELECT * FROM Tables
 
-
+SELECT * FROM TableDetails
 

@@ -191,18 +191,35 @@ GO
 --- Wydłużenie czasu rezerwacji do preferowanej godziny jeśli to możliwe
 CREATE OR ALTER PROCEDURE ExtendCurrentReservation(@ReservationID int, @NewEndDate datetime)
 AS BEGIN
-    IF NOT (@ReservationID IN (SELECT ReservationID FROM Reservations WHERE StartDate <= GETDATE() AND GETDATE() <= EndDate))
-    BEGIN
+
+    IF @NewEndDate < (SELECT EndDate FROM Reservations WHERE ReservationID = @ReservationID) BEGIN
+        ;THROW 52000, 'New end time is before the current one', 1
+        RETURN
+    END
+
+    IF NOT (@ReservationID IN (SELECT ReservationID FROM Reservations WHERE StartDate <= GETDATE() AND GETDATE() <= EndDate))BEGIN
         ;THROW 52000, 'Wrong ReservationID or reservation has already ended or not started yet', 1
         RETURN
     END
 
-    IF ((SELECT COUNT (*) FROM (
-        (SELECT TableID FROM TableDetails WHERE ReservationID = @ReservationID)
-        EXCEPT
-        (SELECT TableID FROM TableDetails TD
-        INNER JOIN Reservations R ON TD.ReservationID = R.ReservationID
-        WHERE dbo.TableAvailableAtTime(TableID, EndDate, @NewEndDate) = 1)  ) as TTI) != 0)
+
+    IF EXISTS (
+        SELECT *
+        FROM 
+            TableDetails td
+        WHERE
+            td.ReservationID = @ReservationID
+            AND td.TableID IN  (
+                SELECT 
+                    TD.TableID 
+                FROM
+                    TableDetails TD
+                    INNER JOIN Reservations R ON TD.ReservationID = R.ReservationID
+                WHERE 
+                    R.StartDate >= (SELECT EndDate FROM Reservations WHERE ReservationID = @ReservationID)
+                    AND R.StartDate < @NewEndDate
+            )
+    )
     BEGIN
         ;THROW 52000, 'Extension is not possible for this amount of time', 1
         RETURN
