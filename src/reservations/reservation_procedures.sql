@@ -13,16 +13,19 @@ CREATE OR ALTER PROCEDURE AddReservation (
 AS BEGIN
     BEGIN TRY
     BEGIN TRANSACTION
-        IF dbo.AreTablesAvailable(@StartDate, @EndDate, @Tables) = 1
-        BEGIN
-            INSERT INTO Reservations(StartDate, EndDate, Accepted, CustomerID, Guests, Canceled)
-            VALUES (@StartDate, @EndDate, @Accepted, @CustomerID, @Guests, 0)
-
-            SET @ReservationID = @@IDENTITY
-
-            INSERT INTO TableDetails(TableID, ReservationID)
-            SELECT TableID, @ReservationID FROM @Tables
+        IF dbo.AreTablesAvailable(@StartDate, @EndDate, @Tables) = 0 BEGIN
+            ;THROW 52000, 'At least one of the tables is not available', 1
+            RETURN
         END
+        
+        INSERT INTO Reservations(StartDate, EndDate, Accepted, CustomerID, Guests, Canceled)
+        VALUES (@StartDate, @EndDate, @Accepted, @CustomerID, @Guests, 0)
+
+        SET @ReservationID = @@IDENTITY
+
+        INSERT INTO TableDetails(TableID, ReservationID)
+        SELECT TableID, @ReservationID FROM @Tables
+        
     COMMIT
     END TRY
     BEGIN CATCH

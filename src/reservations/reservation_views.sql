@@ -24,20 +24,22 @@ GO
 --- Pokazuje szczegóły rezerwacji.
 CREATE OR ALTER VIEW ReservationsDetails
 AS
-    ((SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'not accepted' as Status
+    ((SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'do akceptacji' as Status
     FROM Reservations
     WHERE Accepted = 0)
     UNION
-    (SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'accepted'
+    (SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'zaakceptowana'
     FROM Reservations
     WHERE Accepted = 1 AND Canceled = 0 AND GETDATE() <= EndDate)
     UNION
-    (SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'finished'
+    (SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'zakończona'
     FROM Reservations
     WHERE Accepted = 1 AND Canceled = 0 AND EndDate < GETDATE())
     UNION
-    (SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'cancelled'
+    (SELECT ReservationID, CustomerID, StartDate, EndDate, Guests, 'anulowana'
     FROM Reservations
     WHERE Accepted = 1 AND Canceled = 1))
 GO
 --<
+
+SELECT * FROM ReservationsDetails

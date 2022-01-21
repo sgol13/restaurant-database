@@ -4,13 +4,21 @@
 CREATE OR ALTER FUNCTION TableAvailableAtTime(@TableID int, @StartDate datetime, @EndDate datetime)
 RETURNS BIT
 BEGIN
-    IF ( @TableID NOT IN
-    (SELECT TableID FROM TableDetails TD
-    INNER JOIN Reservations R ON TD.ReservationID = R.ReservationID
-    WHERE ((NOT (EndDate <= @StartDate OR StartDate >= @EndDate)) AND Canceled = 0)) )
-    RETURN 1
-    ELSE
-    RETURN 0
+    RETURN CASE
+        WHEN @TableID NOT IN
+            (SELECT 
+                TableID 
+            FROM 
+                TableDetails TD
+                INNER JOIN Reservations R ON TD.ReservationID = R.ReservationID
+            WHERE 
+                NOT EndDate <= @StartDate 
+                AND NOT StartDate >= @EndDate
+                AND Canceled = 0 
+            )
+        THEN 1
+        ELSE 0
+    END
 END
 GO
 --<
@@ -21,17 +29,17 @@ GO
 CREATE OR ALTER FUNCTION EndOfTableOccupationTime(@TableID int)
 RETURNS datetime
 BEGIN
-    IF (TableAvailableAtTime(@TableID, GETDATE(), GETDATE()) = 1)
-    BEGIN
-        ;THROW 52000, 'Table is not occupied at the moment', 1
-        RETURN 0
-    END
-    ELSE
-    BEGIN
-        RETURN (SELECT EndDate FROM Reservations R
-        INNER JOIN TableDetails TD on R.ReservationID = TD.ReservationID
-        WHERE TD.TableID = @TableID AND StartDate <= GETDATE() AND GETDATE() <= EndDate)
-    END
+    RETURN 
+        (SELECT 
+            EndDate 
+        FROM 
+            Reservations R
+            INNER JOIN TableDetails TD on R.ReservationID = TD.ReservationID
+        WHERE 
+            TD.TableID = @TableID 
+            AND StartDate <= GETDATE() 
+            AND GETDATE() <= EndDate
+        )
 END
 GO
 --<
@@ -42,17 +50,17 @@ GO
 CREATE OR ALTER FUNCTION CurrentTableReservation(@TableID int)
 RETURNS int
 BEGIN
-    IF (TableAvailableAtTime(@TableID, GETDATE(), GETDATE()) = 1)
-    BEGIN
-        ;THROW 52000, 'Table is not occupied at the moment', 1
-        RETURN 0
-    END
-    ELSE
-    BEGIN
-        RETURN (SELECT R.ReservationID FROM Reservations R
-        INNER JOIN TableDetails TD on R.ReservationID = TD.ReservationID
-        WHERE TD.TableID = @TableID AND StartDate <= GETDATE() AND GETDATE() <= EndDate)
-    END
+    RETURN 
+        (SELECT 
+            R.ReservationID 
+        FROM 
+            Reservations R
+            INNER JOIN TableDetails TD on R.ReservationID = TD.ReservationID
+        WHERE 
+            TD.TableID = @TableID 
+            AND StartDate <= GETDATE() 
+            AND GETDATE() <= EndDate
+        )
 END
 GO
 --<
@@ -61,11 +69,14 @@ GO
 --# TablesAvailableToReserve(StartDate, EndDate)
 --- Zwraca tabelę zawierającą stoliki możliwe do zarezerwowania w danym przedziale czasowym.
 CREATE OR ALTER FUNCTION TablesAvailableToReserve(@StartDate datetime, @EndDate datetime)
-RETURNS @Tables TABLE (TableID int, Seats int)
-BEGIN
-    INSERT @Tables
-        SELECT TableID, Seats FROM Tables WHERE dbo.TableAvailableAtTime(TableID, @StartDate, @EndDate) = 1
-    RETURN
-END
+RETURNS TABLE
+AS RETURN
+    SELECT 
+        TableID, 
+        Seats 
+    FROM 
+        Tables
+    WHERE 
+        dbo.TableAvailableAtTime(TableID, @StartDate, @EndDate) = 1
 GO
 --<
