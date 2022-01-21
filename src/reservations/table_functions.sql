@@ -2,7 +2,7 @@
 --# TableAvailableAtTime(TableID, StartDate, EndDate)
 --- Sprawdza czy dany stolik jest dostępny w danym przedziale czasowym.
 CREATE OR ALTER FUNCTION TableAvailableAtTime(@TableID int, @StartDate datetime, @EndDate datetime)
-RETURNS BIT
+RETURNS bit
 BEGIN
     RETURN CASE
         WHEN @TableID NOT IN

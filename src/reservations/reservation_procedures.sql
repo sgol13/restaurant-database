@@ -13,6 +13,7 @@ CREATE OR ALTER PROCEDURE AddReservation (
 AS BEGIN
     BEGIN TRY
     BEGIN TRANSACTION
+
         IF dbo.AreTablesAvailable(@StartDate, @EndDate, @Tables) = 0 BEGIN
             ;THROW 52000, 'At least one of the tables is not available', 1
             RETURN
@@ -37,34 +38,24 @@ GO
 --<
 
 --> Procedury
---# TableReservationNow(CustomerID, EndDate, TableID)
+--# AddInstantReservation
 --- Zarezerwowanie stolika w aktualnej chwili  (rezerwacja rozpoczyna się natychmiastowo).
-CREATE OR ALTER PROCEDURE TableReservationNow (
+CREATE OR ALTER PROCEDURE AddInstantReservation (
     @CustomerID int,
     @EndDate datetime,
-    @Accepted bit = 1,
-    @TableID int,
-    @Guests nvarchar(max) = NULL,
+    @Tables ReservationTablesListT READONLY,
     @ReservationID int = NULL OUTPUT
 )
 AS BEGIN
-    BEGIN TRY
-    BEGIN TRANSACTION
 
-        INSERT INTO Reservations(StartDate, EndDate, Accepted, CustomerID, Guests, Canceled)
-        VALUES (GETDATE(), @EndDate, @Accepted, @CustomerID, @Guests, 0)
+    DECLARE @StartDate datetime = GETDATE();
 
-        SET @ReservationID = @@IDENTITY
-
-        INSERT INTO TableDetails(TableID, ReservationID)
-        VALUES (@TableID, @ReservationID)
-
-    COMMIT
-    END TRY
-    BEGIN CATCH
-        ROLLBACK;
-        THROW;
-    END CATCH
+    EXEC AddReservation 
+        @CustomerID = @CustomerID,
+        @StartDate = @StartDate,
+        @EndDate = @EndDate,
+        @Tables = @Tables,
+        @ReservationID = @ReservationID OUTPUT;
 END
 GO
 --<
