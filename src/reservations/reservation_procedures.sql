@@ -27,10 +27,11 @@ AS BEGIN
         INSERT INTO TableDetails(TableID, ReservationID)
         SELECT TableID, @ReservationID FROM @Tables
         
-    COMMIT
+    COMMIT  
     END TRY
     BEGIN CATCH
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END
@@ -64,36 +65,61 @@ GO
 --# PrivateOnlineReservation()
 --- Tworzy rezerwację pojedynczego stolika dla klienta indywidualnego wraz ze złożeniem zamówienia
 CREATE OR ALTER PROCEDURE PrivateOnlineReservation (
+    @OrderDate datetime = NULL,
     @StartDate datetime,
     @EndDate datetime,
-    @Accepted bit = 0,
     @CustomerID int,
     @Guests nvarchar(max) = NULL,
     @Tables ReservationTablesListT READONLY,
-    @ReservationID int = NULL OUTPUT
+    @OrderedItems OrderedItemsListT READONLY
 )
 AS BEGIN
     BEGIN TRY
     BEGIN TRANSACTION
-        IF dbo.AreTablesAvailable(@StartDate, @EndDate, @Tables) = 1
-        BEGIN
-            INSERT INTO Reservations(StartDate, EndDate, Accepted, CustomerID, Guests, Canceled)
-            VALUES (@StartDate, @EndDate, @Accepted, @CustomerID, @Guests, 0)
 
-            SET @ReservationID = @@IDENTITY
-
-            INSERT INTO TableDetails(TableID, ReservationID)
-            SELECT TableID, @ReservationID FROM @Tables
+        IF NOT EXISTS (SELECT * FROM PrivateCustomers WHERE CustomerID = @CustomerID) BEGIN
+            ;THROW 52000, 'It is not a private customer', 1
+            RETURN
         END
+
+        IF 0 = dbo.CanReserveOnline(@CustomerID, @StartDate, @OrderedItems) BEGIN
+            ;THROW 52000, 'The customer is not allowed to make an online reservation', 1
+            RETURN
+        END
+
+        DECLARE @ReservationID int;
+        EXEC AddReservation 
+            @StartDate = @StartDate,
+            @EndDate = @EndDate,
+            @Accepted = 0,
+            @CustomerID = @CustomerID,
+            @Tables = @Tables,
+            @ReservationID = @ReservationID OUTPUT;
+
+        IF @OrderDate IS NULL
+            SET @OrderDate = GETDATE()
+
+        DECLARE @OrderID int;
+        EXEC CreateOrder
+            @CustomerID = @CustomerID,
+            @OrderDate = @OrderDate,
+            @CompletionDate = @StartDate, 
+            @OrderedItems = @OrderedItems,
+            @OrderID = @OrderID OUTPUT;
+
+
+        UPDATE Orders
+        SET ReservationID = @ReservationID
+        WHERE OrderID = @OrderID
+
     COMMIT
     END TRY
     BEGIN CATCH
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END
-
-
 GO
 --<
 
@@ -160,7 +186,8 @@ AS BEGIN
     COMMIT
     END TRY
     BEGIN CATCH
-        ROLLBACK;
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
         THROW;
     END CATCH
 END

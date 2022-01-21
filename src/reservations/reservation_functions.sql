@@ -46,3 +46,38 @@ AS RETURN
         CustomerID = @CustomerID
 GO
 --<
+
+
+--> Funkcje
+--# CanReserveOnline
+--- Zwraca informację czy dany klient indywidualny spełnia warunki do złożenia rezerwacji online.
+CREATE OR ALTER FUNCTION CanReserveOnline(@CustomerID int, @CompletionDate datetime, @OrderedItems OrderedItemsListT READONLY)
+RETURNS bit
+BEGIN
+
+    DECLARE @MenuID int = dbo.GetMenuIDForDay(@CompletionDate)
+
+    DECLARE @MinAmount money = (SELECT WZ FROM CurrentConstants)
+    DECLARE @MinOrdersNum int = (SELECT WK FROM CurrentConstants)
+
+    DECLARE @TotalAmount money = (
+        SELECT
+            sum(oi.Quantity * mi.Price)
+        FROM
+            @OrderedItems oi
+            INNER JOIN MenuItems mi ON mi.MealID = oi.MealID AND mi.MenuID = @MenuID
+        )
+
+    DECLARE @OrdersNum int = (
+        SELECT 
+            count(1)
+        FROM 
+            Orders
+        WHERE
+            CustomerID = @CustomerID
+            AND Completed = 1
+        )
+
+    RETURN CASE WHEN @TotalAmount >= @MinAmount AND @OrdersNum >= @MinOrdersNum THEN 1 ELSE 0 END
+END
+--<

@@ -12,8 +12,8 @@ BEGIN
                 TableDetails TD
                 INNER JOIN Reservations R ON TD.ReservationID = R.ReservationID
             WHERE 
-                NOT EndDate < @StartDate 
-                AND NOT StartDate > @EndDate
+                NOT EndDate <= @StartDate 
+                AND NOT StartDate >= @EndDate
                 AND Canceled = 0 
             )
         THEN 1

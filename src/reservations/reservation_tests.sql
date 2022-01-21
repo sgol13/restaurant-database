@@ -164,6 +164,7 @@ END
 
 -- EXTEND RESERVATION - exptected ok
 BEGIN
+BEGIN TRY
 BEGIN TRANSACTION;
     DECLARE @ResID int;
     
@@ -185,6 +186,11 @@ BEGIN TRANSACTION;
     SELECT * FROM TodayReservations
 
 ROLLBACK;
+END TRY
+BEGIN CATCH
+IF @@TRANCOUNT > 0
+    ROLLBACK
+END CATCH
 END
 
 -- EXTEND RESERVATION - exptected error
@@ -203,14 +209,60 @@ BEGIN TRANSACTION;
     VALUES (2), (3), (5);
     EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21', @EndDate='2022-01-21 14:00', @Tables = @tables2, @ReservationID = @ResID OUTPUT;
 
-    EXEC ExtendCurrentReservation @ReservationID = @ResID, @NewEndDate = '2022-01-21 17:00';
+    EXEC ExtendCurrentReservation @ReservationID = @ResID, @NewEndDate = '2022-01-21 14:30';
 
     SELECT * FROM ReservationsDetails
+
+    SELECT * FROM dbo.TablesAvailableToReserve('2022-01-21 14:00', '2022-01-21 15:00')
 
 ROLLBACK;
 END TRY
 BEGIN CATCH
-ROLLBACK;
+IF @@TRANCOUNT > 0
+    ROLLBACK;
+THROW;
+END CATCH
+END
+
+-- PRIVATE ONLINE RESERVATION
+BEGIN
+BEGIN TRY
+BEGIN TRANSACTION;
+
+    DECLARE @tables1 ReservationTablesListT;
+    INSERT INTO @tables1
+    VALUES (2), (4), (6);
+    
+    DECLARE @items OrderedItemsListT;
+    INSERT INTO @items VALUES (1, 1), (3, 20), (4, 1);
+
+    -- DECLARE @items OrderedItemsListT;
+    -- INSERT INTO @items VALUES (1, 1), (3, 20), (6, 1);
+
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-18 16:32', @OrderedItems = @items;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-18 17:32', @OrderedItems = @items;
+    EXEC CreateInstantOrder @CustomerID = 1, @CompletionDate = '2022-01-18 18:32', @OrderedItems = @items;
+
+    PRINT dbo.CanReserveOnline(1, '2022-01-22 15:39:50', @items)
+    EXEC PrivateOnlineReservation @StartDate='2022-01-22 14:00', @EndDate='2022-01-22 14:30', @CustomerID=1, @Tables=@tables1, @OrderedItems=@items;
+
+    --     @OrderDate datetime = NULL,
+    -- @StartDate datetime,
+    -- @EndDate datetime,
+    -- @CustomerID int,
+    -- @Guests nvarchar(max) = NULL,
+    -- @Tables ReservationTablesListT READONLY,
+    -- @OrderedItems OrderedItemsListT READONLY
+
+    SELECT * FROM ReservationsDetails
+    SELECT * FROM Orders
+
+IF @@TRANCOUNT > 0
+    ROLLBACK;
+END TRY
+BEGIN CATCH
+    IF @@TRANCOUNT > 0
+        ROLLBACK;
 THROW;
 END CATCH
 END
@@ -219,4 +271,3 @@ END
 SELECT * FROM Tables
 
 SELECT * FROM TableDetails
-
