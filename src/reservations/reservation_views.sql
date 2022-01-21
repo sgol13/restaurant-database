@@ -2,22 +2,28 @@
 --# ReservationsToAccept
 --- Pokazuje rezerwacje, które nie zostały zaakceptowane.
 CREATE OR ALTER VIEW ReservationsToAccept
-AS SELECT ReservationID, CustomerID, Guests, Canceled
-FROM Reservations WHERE Accepted = 0 AND Canceled = 0
+AS 
+    SELECT *
+    FROM 
+        ReservationsDetails
+    WHERE 
+        [Status] = 'do akceptacji'
 GO
 --<
 
 --> Widoki
 --# TodaysReservations
 --- Pokazuje rezerwacje na aktualny dzień.
-CREATE OR ALTER VIEW TodaysReservations
-AS SELECT ReservationID, CustomerID, StartDate, EndDate, Guests
-FROM Reservations
-WHERE DAY(StartDate) = DAY(GETDATE())
-AND MONTH(StartDate) = MONTH(GETDATE())
-AND YEAR(StartDate) = YEAR(GETDATE())
+CREATE OR ALTER VIEW TodayReservations
+AS 
+    SELECT *
+    FROM 
+        ReservationsDetails
+    WHERE
+        DATEDIFF(day, StartDate, GETDATE()) = 0
 GO
 --<
+
 
 --> Widoki
 --# ReservationsDetails 

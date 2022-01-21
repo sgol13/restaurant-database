@@ -139,6 +139,7 @@ BEGIN TRANSACTION;
 ROLLBACK;
 END
 
+-- FINISH RESERVATION
 BEGIN
 BEGIN TRANSACTION;
     DECLARE @ResID int;
@@ -154,7 +155,55 @@ BEGIN TRANSACTION;
     VALUES (1), (3), (5);
     EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21', @EndDate='2022-01-21 05:25', @Tables = @tables2, @ReservationID = @ResID OUTPUT;
 
-    SELECT * FROM CurrentTables
+    EXEC FinishCurrentReservation @ReservationID = @ResID;
+
+    SELECT * FROM ReservationsDetails
+
+ROLLBACK;
+END
+
+-- EXTEND RESERVATION - exptected ok
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @ResID int;
+    
+    DECLARE @tables1 ReservationTablesListT;
+    INSERT INTO @tables1
+    VALUES (2), (4), (6);
+
+    EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21 01:00', @EndDate='2022-01-21 04:00', @Tables = @tables1, @ReservationID = @ResID OUTPUT;
+
+    DECLARE @tables2 ReservationTablesListT;
+    INSERT INTO @tables2
+    VALUES (1), (3), (5);
+    EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21', @EndDate='2022-01-21 05:25', @Tables = @tables2, @ReservationID = @ResID OUTPUT;
+
+    EXEC ExtendCurrentReservation @ReservationID = @ResID, @NewEndDate = '2022-01-21 09:00';
+
+    SELECT * FROM ReservationsDetails
+
+    SELECT * FROM TodayReservations
+
+ROLLBACK;
+END
+
+-- EXTEND RESERVATION - exptected error
+BEGIN
+BEGIN TRANSACTION;
+    DECLARE @ResID int;
+    
+    DECLARE @tables1 ReservationTablesListT;
+    INSERT INTO @tables1
+    VALUES (2), (4), (6);
+
+    EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21 08:00', @EndDate='2022-01-21 09:00', @Tables = @tables1, @ReservationID = @ResID OUTPUT;
+
+    DECLARE @tables2 ReservationTablesListT;
+    INSERT INTO @tables2
+    VALUES (2), (4), (6);
+    EXEC AddReservation @CustomerID = 1, @StartDate='2022-01-21', @EndDate='2022-01-21 05:25', @Tables = @tables2, @ReservationID = @ResID OUTPUT;
+
+    EXEC ExtendCurrentReservation @ReservationID = @ResID, @NewEndDate = '2022-01-21 10:00';
 
     SELECT * FROM ReservationsDetails
 

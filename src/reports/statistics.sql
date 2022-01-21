@@ -12,7 +12,7 @@ BEGIN
     END
 
     INSERT @Statistics
-        SELECT [Name], ISNULL(Sum(OD.Number), 0), ISNULL(Sum(OD.Number * MI.Price), 0)
+        SELECT [Name], ISNULL(Sum(OD.Quantity), 0), ISNULL(Sum(OD.Quantity * MI.Price), 0)
         FROM Meals
         LEFT JOIN OrderDetails OD ON OD.MealID = Meals.MealID
         LEFT JOIN MenuItems MI ON MI.MealID = OD.MealID AND MI.MenuID = OD.MenuID

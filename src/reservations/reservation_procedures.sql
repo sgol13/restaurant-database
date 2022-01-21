@@ -148,12 +148,11 @@ AS BEGIN
             RETURN
         END
 
-        IF(@ReservationID IN (SELECT ReservationID FROM Orders))
-            BEGIN
-                DECLARE @OrderID int;
-                SET @OrderID = (SELECT OrderID FROM Orders WHERE ReservationID = @ReservationID)
-                EXEC CancelOrder @OrderID = @OrderID;
-            END
+        IF(@ReservationID IN (SELECT ReservationID FROM Orders)) BEGIN
+            DECLARE @OrderID int;
+            SET @OrderID = (SELECT OrderID FROM Orders WHERE ReservationID = @ReservationID)
+            EXEC CancelOrder @OrderID = @OrderID;
+        END
 
         UPDATE Reservations SET Canceled = 1
         WHERE ReservationID = @ReservationID
@@ -179,11 +178,9 @@ AS BEGIN
         ;THROW 52000, 'Wrong ReservationID or reservation has already ended or not started yet', 1
         RETURN
     END
-    ELSE
-    BEGIN
-        UPDATE Reservations SET EndDate = GETDATE()
-        WHERE ReservationID = @ReservationID
-    END
+
+    UPDATE Reservations SET EndDate = GETDATE()
+    WHERE ReservationID = @ReservationID
 END
 GO
 --<
@@ -199,24 +196,20 @@ AS BEGIN
         ;THROW 52000, 'Wrong ReservationID or reservation has already ended or not started yet', 1
         RETURN
     END
-    ELSE
+
+    IF ((SELECT COUNT (*) FROM (
+        (SELECT TableID FROM TableDetails WHERE ReservationID = @ReservationID)
+        EXCEPT
+        (SELECT TableID FROM TableDetails TD
+        INNER JOIN Reservations R ON TD.ReservationID = R.ReservationID
+        WHERE dbo.TableAvailableAtTime(TableID, EndDate, @NewEndDate) = 1)  ) as TTI) != 0)
     BEGIN
-        IF (( SELECT COUNT (*) FROM (
-            (SELECT TableID FROM TableDetails WHERE ReservationID = @ReservationID)
-            EXCEPT
-            (SELECT TableID FROM TableDetails TD
-            INNER JOIN Reservations R ON TD.ReservationID = R.ReservationID
-            WHERE dbo.TableAvailableAtTime(TableID, EndDate, @NewEndDate) = 1)  ) as TTI) != 0)
-        BEGIN
-            ;THROW 52000, 'Extension is not possible for this amount of time', 1
-            RETURN
-        END
-        ELSE
-        BEGIN
-            UPDATE Reservations SET EndDate = @NewEndDate
-            WHERE ReservationID = @ReservationID
-        END
+        ;THROW 52000, 'Extension is not possible for this amount of time', 1
+        RETURN
     END
+
+    UPDATE Reservations SET EndDate = @NewEndDate
+    WHERE ReservationID = @ReservationID
 END
 GO
 --<
