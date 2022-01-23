@@ -51,10 +51,10 @@ GO
 --<
 
 --> Funkcje
---# OrderStatistics(Monthly, Date)
+--# OrdersStatistics(Monthly, Date)
 --- Raport dotyczący zamówień, wyświetla dla każdego zamówienia końcowa cenę, czas w którym zamówienie spłyneło i datę na które jest to zamówienie, 
 --- a także nazwę klienta (imię i nazwisko w przypadku klienta indywidualnego). Jeśli Monthly jest ustawione na 1, raport jest miesięczny, a w przeciwnym wypadku jest tygodniowy.
-CREATE OR ALTER FUNCTION OrderStatistics(
+CREATE OR ALTER FUNCTION OrdersStatistics(
     @Monthly bit,
     @Date datetime
 )RETURNS @Statistics TABLE(Amount money, OrderDate datetime, CompletionDate datetime, Who nvarchar(64))
@@ -77,10 +77,10 @@ GO
 --<
 
 --> Funkcje
---# TableStatistics(Monthly, Date)
+--# TablesStatistics(Monthly, Date)
 --- Raport dotyczący stolików, dla każdego pokazuje ilość miejsc, to czy jest aktywny a także ile razy został zarezerowany w danym okresie. 
 --- Jeśli Monthly jest ustawione na 1, raport jest miesięczny, a w przeciwnym wypadku jest tygodniowy.
-CREATE OR ALTER FUNCTION TableStatistics (
+CREATE OR ALTER FUNCTION TablesStatistics (
     @Monthly bit,
     @Date datetime
 ) RETURNS @Statistics TABLE(TableID int, Seats int, Active bit, TimesUsed int)
