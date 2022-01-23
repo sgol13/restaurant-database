@@ -14,4 +14,5 @@ AS
         dbo.CurrentTableReservation(TableID) ReservationID, 
         dbo.EndOfTableOccupationTime(TableID) EndOfReservation
     FROM Tables
+GO
 --<

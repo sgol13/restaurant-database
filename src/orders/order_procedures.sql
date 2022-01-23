@@ -1,5 +1,5 @@
 --> Procedury
---# CreateOrder(CustomerID, OrderDate, CompletionDate, OrderedItems, OrderID OUTPUT)
+--# CreateOrder(...)
 --- Tworzy nowe zamówienie w systemie. Zamówienie jest przypisane do konkretnego klienta i ma ustaloną datę odbioru.
 CREATE OR ALTER PROCEDURE CreateOrder(
     @CustomerID int, 

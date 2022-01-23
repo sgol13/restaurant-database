@@ -1,11 +1,7 @@
 DROP ROLE manager;
 --> Uprawnienia
 --# Manager
---- Aplikacja managera restauracji może wykonywać dowolne operacje SELECT w celu pobierania danych.
---- Posiada również dostęp do procedur, funkcji i widoków, które związane są z zarządziem
---- restauracją. Umożliwiają one bezpieczne i niepowodujące błędów tworzenie menu oraz zmianę zasad rabatów
---- przyznawanych w restauracji. Pozwalają także na generowanie raportów związanych z działaniem restauracji
---- oraz na wystawianie faktur.
+--- Może wykonywać dowolne operacje SELECT oraz korzystać z przygotowanych procedur, funkcji i widoków.
 CREATE ROLE manager;
 
 GRANT SELECT ON SCHEMA::dbo TO manager;
@@ -46,9 +42,7 @@ GRANT SELECT ON dbo.CustomersFullNames TO manager;
 DROP ROLE staff;
 --> Uprawnienia
 --# Staff
---- Aplikacja przeznaczona dla obsługi może wykonywać dowolne operacje SELECT w celu pobierania potrzebnych danych.
---- Ponadto ma dostęp do odpowiednio przygotowanych procedur, które w bezpieczny sposób przeprowadzają operacje
---- związane z bieżącą obsługą restauracji, czyli składaniem i wydawaniem zamówień i rezerwacjami stolików.
+--- Może wykonywać dowolne operacje SELECT oraz korzystać z przygotowanych procedur, funkcji i widoków.
 CREATE ROLE staff;
 
 GRANT SELECT ON SCHEMA::dbo TO staff;
@@ -97,10 +91,7 @@ GRANT SELECT ON dbo.CurrentConstants TO staff;
 DROP ROLE customer;
 --> Uprawnienia
 --# Customer
---- Aplikacja klienta ma dostęp do wybranych procedur umożliwiających składanie zamówień i rezerwacji online,
---- generowanie faktur oraz raportów na temat własnych zamówień. Nie ma natomiast możliwości wykonywania
---- własnych operacji SELECT. Wszystkie dane odczytywane z bazy muszą zostać wyciągnięte poprzez odpowiednio
---- przygotowane funkcje i widoki.
+--- Może korzystać wyłącznie z przygotowanych procedur, funkcji i widoków.
 CREATE ROLE customer;
 
 -- procedures

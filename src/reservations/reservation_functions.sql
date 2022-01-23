@@ -75,4 +75,5 @@ BEGIN
 
     RETURN CASE WHEN @TotalAmount >= @MinAmount AND @OrdersNum >= @MinOrdersNum THEN 1 ELSE 0 END
 END
+GO
 --<
