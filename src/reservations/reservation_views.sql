@@ -12,7 +12,7 @@ GO
 --<
 
 --> Widoki
---# TodaysReservations
+--# TodayReservations
 --- Pokazuje rezerwacje na aktualny dzień.
 CREATE OR ALTER VIEW TodayReservations
 AS 
@@ -50,5 +50,3 @@ AS
         Reservations r
 GO
 --<
-
-SELECT * FROM ReservationsDetails

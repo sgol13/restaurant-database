@@ -1,5 +1,5 @@
 --> Procedury
---# AddReservation(StartDate, EndDate, CustomerID, Guests)
+--# AddReservation(...)
 --- Dodaje nową rezerwację stolika na określony termin
 CREATE OR ALTER PROCEDURE AddReservation (
     @StartDate datetime,
@@ -39,7 +39,7 @@ GO
 --<
 
 --> Procedury
---# AddInstantReservation
+--# AddInstantReservation(CustomerID, EndDate, Tables, ReservationID OUTPUT)
 --- Zarezerwowanie stolika w aktualnej chwili  (rezerwacja rozpoczyna się natychmiastowo).
 CREATE OR ALTER PROCEDURE AddInstantReservation (
     @CustomerID int,
@@ -62,8 +62,9 @@ GO
 --<
 
 --> Procedury
---# PrivateOnlineReservation()
---- Tworzy rezerwację dla klienta indywidualnego wraz ze złożeniem zamówienia
+--# PrivateOnlineReservation(...)
+--- Tworzy rezerwację online dla klienta indywidualnego wraz ze złożeniem zamówienia.
+--- Sprawdzane jest czy klient ma możliwość złożenia rezerwacji online.
 CREATE OR ALTER PROCEDURE PrivateOnlineReservation (
     @OrderDate datetime = NULL,
     @StartDate datetime,
@@ -125,8 +126,8 @@ GO
 
 
 --> Procedury
---# CompanyOnlineReservation
---- Tworzy rezerwację dla klienta firmowego połązoną ze złożeniem zamówienia.
+--# CompanyOnlineReservation(...)
+--- Tworzy rezerwację online dla klienta firmowego. Rezerwacja może być połączona ze złożeniem zamówienia.
 CREATE OR ALTER PROCEDURE CompanyOnlineReservation  (
     @OrderDate datetime = NULL,
     @StartDate datetime,

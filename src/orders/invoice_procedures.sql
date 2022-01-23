@@ -37,13 +37,17 @@ AS BEGIN
         INSERT INTO Invoices(
             InvoiceID, Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
         )
-        SELECT @InvoiceID, GETDATE(), Customers.CustomerID, dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
+        SELECT 
+            @InvoiceID, GETDATE(), Customers.CustomerID, dbo.TotalOrderAmount(@OrderID), FirstName, LastName, CompanyName, 
                     Email, Phone, Address, City, PostalCode, Country 
-        FROM Orders
+        FROM 
+            Orders
             JOIN Customers ON Customers.CustomerID = Orders.CustomerID
             LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
             LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
-        WHERE Orders.OrderID = @OrderID;
+        WHERE 
+            Orders.OrderID = @OrderID;
+            
 
         UPDATE Orders SET InvoiceID = @InvoiceID
         WHERE OrderID = @OrderID
@@ -90,19 +94,29 @@ AS BEGIN
         INSERT INTO Invoices(
              InvoiceID, Date, CustomerID, TotalAmount, FirstName, LastName, CompanyName, Email, Phone, Address, City, PostalCode, Country
         )
-        SELECT @InvoiceID, GETDATE(), Customers.CustomerID, SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
+        SELECT 
+            @InvoiceID, GETDATE(), Customers.CustomerID, SUM(dbo.TotalOrderAmount(Orders.OrderID)), MAX(FirstName), MAX(LastName), 
                 MAX(CompanyName), MAX(Email), MAX(Phone), MAX(Address), MAX(City), MAX(PostalCode), MAX(Country) 
-        FROM Customers
+        FROM 
+            Customers
             LEFT JOIN Orders ON Orders.CustomerID = Customers.CustomerID AND Orders.InvoiceID IS NULL
                                 AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
             LEFT JOIN CompanyCustomers ON CompanyCustomers.CustomerID = Customers.CustomerID
             LEFT JOIN PrivateCustomers ON PrivateCustomers.CustomerID = Customers.CustomerID
-        WHERE Customers.CustomerID = @CustomerID
-        GROUP BY Customers.CustomerID
+        WHERE 
+            Customers.CustomerID = @CustomerID
+        GROUP BY 
+            Customers.CustomerID
 
-        UPDATE Orders SET InvoiceID = @InvoiceID
-        WHERE Orders.CustomerID = @CustomerID AND Orders.InvoiceID IS NULL
-                AND MONTH(Orders.CompletionDate) = @Month AND YEAR(Orders.CompletionDate) = @Year
+        UPDATE 
+            Orders 
+        SET 
+            InvoiceID = @InvoiceID
+        WHERE 
+            Orders.CustomerID = @CustomerID 
+            AND Orders.InvoiceID IS NULL
+            AND MONTH(Orders.CompletionDate) = @Month 
+            AND YEAR(Orders.CompletionDate) = @Year
 
     COMMIT;
     END TRY

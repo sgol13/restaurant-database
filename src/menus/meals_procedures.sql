@@ -1,16 +1,13 @@
 --> Procedury
---# NewMeal(Name, IsSeaFood, DefaultPrice, Active = 1, MealID OUTPUT)
+--# CreateNewMeal(Name, IsSeaFood, DefaultPrice, Active, MealID OUTPUT)
 --- Tworzy nowy posiłek.
-CREATE OR ALTER PROCEDURE NewMeal(@Name nvarchar(64), @IsSeaFood bit, @DefaultPrice money, @Active bit = 1, @MealID int OUTPUT)
+CREATE OR ALTER PROCEDURE CreateNewMeal(@Name nvarchar(64), @IsSeaFood bit, @DefaultPrice money, @Active bit = 1, @MealID int OUTPUT)
 AS BEGIN
     INSERT INTO Meals([Name], SeaFood, DefaultPrice, Active)
     VALUES(@Name, @IsSeaFood, @DefaultPrice, @Active)
     
     SET @MealID = @@IDENTITY
 END
-GO
-
-GRANT EXECUTE ON OBJECT::dbo.NewMeal TO manager
 GO
 --<
 
@@ -24,22 +21,17 @@ AS BEGIN
     WHERE MealID = @MealID
 END
 GO
-
-GRANT EXECUTE ON OBJECT::dbo.SetMealActive TO manager
-GO
 --<
+
 
 --> Procedury
 --# UpdateMealDefaultPrice(MealID, DefaultPrice)
---- Zmienia podstawową cenę posiłku.
+--- Zmienia domyślną cenę posiłku.
 CREATE OR ALTER PROCEDURE UpdateMealDefaultPrice(@MealID int, @DefaultPrice money)
 AS BEGIN
     UPDATE Meals
     SET DefaultPrice = @DefaultPrice
     WHERE MealID = @MealID
 END
-GO
-
-GRANT EXECUTE ON OBJECT::dbo.UpdateMealDefaultPrice TO manager
 GO
 --<

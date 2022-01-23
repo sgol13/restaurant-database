@@ -9,19 +9,15 @@ AS BEGIN
     SET @MenuID = @@IDENTITY
 END
 GO
-
-GRANT EXECUTE ON OBJECT::dbo.NewMenuInProgress TO manager
-GO
 --<
 
 
 --> Procedury
 --# ChangeMenuDates(MenuID, StartDate, EndDate)
---- Zmienia daty niaktywnego menu.
+--- Zmienia datę obowiązywania nieaktywnego menu
 CREATE OR ALTER PROCEDURE ChangeMenuDates(@MenuID int, @StartDate datetime = NULL, @EndDate datetime = NULL)
 AS BEGIN
-    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
-    BEGIN
+    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1 BEGIN
         ;THROW 52000, 'Menu is active', 1
         RETURN
     END 
@@ -38,9 +34,6 @@ AS BEGIN
     WHERE MenuID = @MenuID
 END
 GO
-
-GRANT EXECUTE ON OBJECT::dbo.ChangeMenuDates TO manager
-GO
 --<
 
 
@@ -49,14 +42,12 @@ GO
 --- Dodaje posiłek do nieaktywnego menu.
 CREATE OR ALTER PROCEDURE SetMenuItem(@MenuID int, @MealID int, @Price money = NULL)
 AS BEGIN
-    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
-    BEGIN
+    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1 BEGIN
         ;THROW 52000, 'Menu is active', 1
         RETURN
     END 
 
-    IF (SELECT Active FROM Meals WHERE MealID = @MealID) = 0
-    BEGIN
+    IF (SELECT Active FROM Meals WHERE MealID = @MealID) = 0 BEGIN
         ;THROW 52000, 'Meal is not active', 1
         RETURN
     END 
@@ -67,9 +58,6 @@ AS BEGIN
     VALUES (@MenuID, @MealID, ISNULL(@Price, @DefaultPrice))
 END
 GO
-
-GRANT EXECUTE ON OBJECT::dbo.SetMenuItem TO manager
-GO
 --<
 
 
@@ -78,8 +66,7 @@ GO
 --- Usuwa posiłek z nieaktynego menu.
 CREATE OR ALTER PROCEDURE RemoveMenuItem(@MenuID int, @MealID int)
 AS BEGIN
-    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
-    BEGIN
+    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1 BEGIN
         ;THROW 52000, 'Menu is active', 1
         RETURN
     END
@@ -88,20 +75,16 @@ AS BEGIN
     WHERE MenuID = @MenuID AND MealID = @MealID
 END
 GO
-
-GRANT EXECUTE ON OBJECT::dbo.RemoveMenuItem TO manager
-GO
 --<
 
 
 --> Procedury
 --# ActivateMenu(MenuID)
---- Próbuje aktywować menu biorąc pod uwagę niepowtarzanie się posiłków i nienachodzenie dat.
+--- Próbuje aktywować menu, biorąc pod uwagę niepowtarzanie się posiłków i nienachodzenie dat.
 CREATE OR ALTER PROCEDURE ActivateMenu(@MenuID int)
 AS BEGIN
     -- Check if not active
-    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1
-    BEGIN
+    IF (SELECT Active FROM Menu WHERE MenuID = @MenuID) = 1 BEGIN
         ;THROW 52000, 'Menu is active', 1
         RETURN
     END
@@ -110,8 +93,7 @@ AS BEGIN
     DECLARE @StartDate datetime = (SELECT StartDate FROM Menu WHERE MenuID = @MenuID)
     DECLARE @LastMenuDate datetime = (SELECT MAX(EndDate) FROM Menu WHERE Active = 1)
     
-    if DATEDIFF(day, @LastMenuDate, @StartDate) <= 0
-    BEGIN
+    if DATEDIFF(day, @LastMenuDate, @StartDate) <= 0 BEGIN
         ;THROW 52000, 'Overlapping dates', 1
         RETURN
     END
@@ -135,8 +117,7 @@ AS BEGIN
         WHERE M2.Active = 1 AND DATEDIFF(day, M2.EndDate, Menu.StartDate) < 14
     )
 
-    IF (@NotChangedCount * 2) > @Count
-    BEGIN
+    IF (@NotChangedCount * 2) > @Count BEGIN
         ;THROW 52000, 'Menu is not legal', 1
         RETURN
     END
@@ -144,10 +125,8 @@ AS BEGIN
     -- Everything is correct
     UPDATE Menu SET Active = 1
     WHERE MenuID = @MenuID
-END
-GO
 
-GRANT EXECUTE ON OBJECT::dbo.ActivateMenu TO manager
+END
 GO
 --<
 
@@ -159,8 +138,5 @@ AS BEGIN
     UPDATE Menu SET Active = 0
     WHERE MenuID = @MenuID
 END
-GO
-
-GRANT EXECUTE ON OBJECT::dbo.DeactivateMenu TO manager
 GO
 --<

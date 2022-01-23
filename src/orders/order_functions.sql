@@ -1,5 +1,5 @@
 --> Funkcje
---# TotalDiscountForOrder
+--# TotalDiscountForOrder(OrderID)
 --- Zwraca całkowity rabat (w %) udzielony na dane zamówienie
 CREATE OR ALTER FUNCTION TotalDiscountForOrder(@OrderID int) RETURNS decimal(5, 2)
 BEGIN
@@ -59,7 +59,7 @@ GO
 --<
 
 --> Funkcje
---# IsDiscountType1(CustomerID)
+--# IsDiscountType1(CustomerID, CheckDate)
 --- Sprawdza czy klientowi przysługuje w danej chwili rabat typu pierwszego (co najmniej Z1 zamówień za kwotę przynajmniej K1)
 --- na zamówienie dokonane w danym terminie.
 CREATE OR ALTER FUNCTION IsDiscountType1(@CustomerID int, @CheckDate datetime) RETURNS bit
@@ -86,7 +86,7 @@ GO
 
 
 --> Funkcje
---# IsDiscountType2(CustomerID)
+--# IsDiscountType2(CustomerID, CheckDate)
 --- Sprawdza czy klientowi przysługuje w danej chwili rabat typu drugiego (zamówienia za co najmniej K2 w ciągu poprzedzająych D1 dni)
 CREATE OR ALTER FUNCTION IsDiscountType2(@CustomerID int, @CheckDate datetime) RETURNS bit
 BEGIN
@@ -112,7 +112,7 @@ GO
 
 
 --> Funkcje
---# CustomerOrders
+--# CustomerOrders(CustomerID)
 --- Pokazuje wszystkie zamówienia danego klienta
 CREATE OR ALTER FUNCTION CustomerOrders(@CustomerID int)
 RETURNS TABLE
@@ -133,7 +133,7 @@ GO
 
 
 --> Funkcje
---# GetOrderDetails
+--# GetOrderDetails(OrderID)
 --- Pokazuje szczegóły konkretnego zamówienia.
 CREATE OR ALTER FUNCTION GetOrderDetails(@OrderID int)
 RETURNS TABLE
@@ -151,3 +151,4 @@ AS RETURN
     WHERE
         od.OrderID = @OrderID
 GO
+--<

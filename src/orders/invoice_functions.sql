@@ -1,5 +1,5 @@
 --> Funkcje
---# CanCreateInvoice
+--# CanCreateInvoice(CustomerID)
 --- Sprawdza czy dany klient ma uzupełnione wszystkie dane konieczne do wygenerowania faktury.
 CREATE OR ALTER FUNCTION CanCreateInvoice(@CustomerID int) RETURNS bit
 BEGIN
@@ -21,7 +21,7 @@ GO
 --<
 
 --> Funkcje
---# CountInvoicesForDay
+--# CountInvoicesForDay(Day)
 --- Zwraca liczbę faktur wystawionych danego dnia.
 CREATE OR ALTER FUNCTION CountInvoicesForDay(@Day datetime) RETURNS int
 BEGIN

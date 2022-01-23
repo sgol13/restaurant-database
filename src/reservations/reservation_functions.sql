@@ -15,11 +15,6 @@ GO
 
 
 --> Funkcje
---# TableAvailableAtTime
---- Sprawdza
-
-
---> Funkcje
 --# SingleReservationDetails(ReservationID)
 --- Zwraca szczegóły na temat danej rezerwacji.
 CREATE OR ALTER FUNCTION SingleReservationDetails(@ReservationID int)
@@ -34,7 +29,7 @@ GO
 --<
 
 --> Funkcje
---# GetCustomersReservations
+--# GetCustomersReservations(CustomerID)
 --- Zwraca informacje na temat wszystkich rezerwacji danego klienta wraz z informacją o ich statusie.
 CREATE OR ALTER FUNCTION GetCustomersReservations(@CustomerID int)
 RETURNS TABLE
@@ -49,7 +44,7 @@ GO
 
 
 --> Funkcje
---# CanReserveOnline
+--# CanReserveOnline(CustomerID, CompletionDate, OrderedItems)
 --- Zwraca informację czy dany klient indywidualny spełnia warunki do złożenia rezerwacji online.
 CREATE OR ALTER FUNCTION CanReserveOnline(@CustomerID int, @CompletionDate datetime, @OrderedItems OrderedItemsListT READONLY)
 RETURNS bit

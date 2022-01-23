@@ -52,7 +52,7 @@ GO
 
 
 --> Funkcje
---# GetMenuForDay
+--# GetMenuForDay(Date)
 --- Zwraca menu dostępne w danym dniu w przyszłości.
 CREATE OR ALTER FUNCTION GetMenuForDay(@Date datetime)
 RETURNS @DayMenu TABLE(

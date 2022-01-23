@@ -1,5 +1,5 @@
 --> Procedury
---# CreateOrder
+--# CreateOrder(CustomerID, OrderDate, CompletionDate, OrderedItems, OrderID OUTPUT)
 --- Tworzy nowe zamówienie w systemie. Zamówienie jest przypisane do konkretnego klienta i ma ustaloną datę odbioru.
 CREATE OR ALTER PROCEDURE CreateOrder(
     @CustomerID int, 
@@ -67,7 +67,7 @@ GO
 
 
 --> Procedury
---# CreateInstantOrder
+--# CreateInstantOrder(CustomerID, CompletionDate, OrderedItems, OrderID OUTPUT)
 --- Tworzy nowe zamówienie w systemie i ustawia je jako zrealizowane oraz opłacone. Funkcja jes wykorzystywana, gdy klient kupuje towar na miejscu.
 CREATE OR ALTER PROCEDURE CreateInstantOrder(
     @CustomerID int, 
@@ -102,7 +102,7 @@ GO
 
 
 --> Procedury
---# CancelOrder
+--# CancelOrder(OrderID)
 --- Anuluje zamówienie, które nie zostało jeszcze zrealizowane.
 CREATE OR ALTER PROCEDURE CancelOrder (@OrderID int)
 AS BEGIN
@@ -140,7 +140,7 @@ GO
 
 
 --> Procedury
---# PayForOrder
+--# PayForOrder(OrderID)
 --- Dokonuje płatności za zamówienie i jednocześnie przydziela rabaty, jeśli zostały spełnione warunki.
 CREATE OR ALTER PROCEDURE PayForOrder (@OrderID int)
 AS BEGIN
@@ -201,9 +201,8 @@ GO
 --<
 
 
-
 --> Procedury
---# CompleteOrder
+--# CompleteOrder(OrderID, CompletionDate)
 --- Zapisuje informację, że zamówienie zostało wydane klientowi.
 CREATE OR ALTER PROCEDURE CompleteOrder (@OrderID int, @CompletionDate datetime = NULL)
 AS BEGIN
