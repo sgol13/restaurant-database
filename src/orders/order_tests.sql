@@ -269,7 +269,6 @@ BEGIN TRANSACTION;
     EXEC CreateOrder @CustomerID = 1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-21', @OrderedItems = @items;
     EXEC CreateOrder @CustomerID = 1, @OrderDate = '2022-01-10', @CompletionDate = '2022-01-22', @OrderedItems = @items;
 
-
     DECLARE @items2 OrderedItemsListT;
     INSERT INTO @items2
     VALUES (1, 1), (3, 2);

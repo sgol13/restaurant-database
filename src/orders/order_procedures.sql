@@ -10,6 +10,7 @@ CREATE OR ALTER PROCEDURE CreateOrder(
 )
 AS BEGIN
     BEGIN TRY;
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
     BEGIN TRANSACTION;
 
         IF @OrderDate IS NULL
@@ -106,34 +107,44 @@ GO
 --- Anuluje zamówienie, które nie zostało jeszcze zrealizowane.
 CREATE OR ALTER PROCEDURE CancelOrder (@OrderID int)
 AS BEGIN
+    BEGIN TRY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+    BEGIN TRANSACTION
 
-    -- check if the order exists
-    IF NOT EXISTS (SELECT * FROM Orders WHERE OrderID = @OrderID) BEGIN
-        ;THROW 52000, 'The order does not exist', 1
-        RETURN 
-    END
+        -- check if the order exists
+        IF NOT EXISTS (SELECT * FROM Orders WHERE OrderID = @OrderID) BEGIN
+            ;THROW 52000, 'The order does not exist', 1
+            RETURN 
+        END
 
-    -- check if the order has a reservation
-    IF NULL != (SELECT ReservationID FROM Orders WHERE OrderID = @OrderID) BEGIN
-        ;THROW 52000, 'The order cannot be canceled because it has a reservation', 1
-        RETURN 
-    END
+        -- check if the order has a reservation
+        IF NULL != (SELECT ReservationID FROM Orders WHERE OrderID = @OrderID) BEGIN
+            ;THROW 52000, 'The order cannot be canceled because it has a reservation', 1
+            RETURN 
+        END
 
-    -- check if the order was completed
-    IF 1 = (SELECT Completed FROM Orders WHERE OrderID = @OrderID) BEGIN
-        ;THROW 52000, 'The order has been already completed', 1
-        RETURN;
-    END
+        -- check if the order was completed
+        IF 1 = (SELECT Completed FROM Orders WHERE OrderID = @OrderID) BEGIN
+            ;THROW 52000, 'The order has been already completed', 1
+            RETURN;
+        END
 
-    -- check if the order was canceled
-    IF 1 = (SELECT Canceled FROM Orders WHERE OrderID = @OrderID) BEGIN
-        ;THROW 52000, 'The order has been already canceled', 1
-        RETURN;
-    END
+        -- check if the order was canceled
+        IF 1 = (SELECT Canceled FROM Orders WHERE OrderID = @OrderID) BEGIN
+            ;THROW 52000, 'The order has been already canceled', 1
+            RETURN;
+        END
 
-    -- set order as canceled
-    UPDATE Orders SET Canceled = 1 WHERE OrderID = @OrderID
+        -- set order as canceled
+        UPDATE Orders SET Canceled = 1 WHERE OrderID = @OrderID
 
+    COMMIT
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
+        THROW;
+    END CATCH
 END
 GO
 --<
@@ -145,6 +156,7 @@ GO
 CREATE OR ALTER PROCEDURE PayForOrder (@OrderID int)
 AS BEGIN
     BEGIN TRY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
     BEGIN TRANSACTION
 
         -- check if the order exists
@@ -206,30 +218,40 @@ GO
 --- Zapisuje informację, że zamówienie zostało wydane klientowi.
 CREATE OR ALTER PROCEDURE CompleteOrder (@OrderID int, @CompletionDate datetime = NULL)
 AS BEGIN
+    BEGIN TRY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+    BEGIN TRANSACTION
 
-    -- check if the order exists
-    IF NOT EXISTS (SELECT * FROM Orders WHERE OrderID = @OrderID) BEGIN
-        ;THROW 52000, 'The order does not exist', 1
-        RETURN 
-    END
-    
-    -- check if the order was canceled
-    IF 1 = (SELECT Canceled FROM Orders WHERE OrderID = @OrderID) BEGIN
-        ;THROW 52000, 'The order was canceled', 1
-        RETURN;
-    END
+        -- check if the order exists
+        IF NOT EXISTS (SELECT * FROM Orders WHERE OrderID = @OrderID) BEGIN
+            ;THROW 52000, 'The order does not exist', 1
+            RETURN 
+        END
+        
+        -- check if the order was canceled
+        IF 1 = (SELECT Canceled FROM Orders WHERE OrderID = @OrderID) BEGIN
+            ;THROW 52000, 'The order was canceled', 1
+            RETURN;
+        END
 
-    -- check if the order was completed
-    IF 1 = (SELECT Completed FROM Orders WHERE OrderID = @OrderID) BEGIN
-        ;THROW 52000, 'The order has been already completed', 1
-        RETURN;
-    END
+        -- check if the order was completed
+        IF 1 = (SELECT Completed FROM Orders WHERE OrderID = @OrderID) BEGIN
+            ;THROW 52000, 'The order has been already completed', 1
+            RETURN;
+        END
 
-    UPDATE Orders 
-    SET Completed = 1,
-        CompletionDate = ISNULL(@CompletionDate, GETDATE())
-    WHERE OrderID = @OrderID
+        UPDATE Orders 
+        SET Completed = 1,
+            CompletionDate = ISNULL(@CompletionDate, GETDATE())
+        WHERE OrderID = @OrderID
 
+    COMMIT
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
+        THROW;
+    END CATCH
 END
 GO
 --<

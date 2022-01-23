@@ -9,11 +9,11 @@ BEGIN
             LEFT JOIN CompanyCustomers cc ON cc.CustomerID = c.CustomerID
             LEFT JOIN PrivateCustomers pc ON pc.CustomerID = c.CustomerID
         WHERE
-            -- ((pc.FirstName IS NOT NULL AND pc.LastName IS NOT NULL) OR cc.CompanyName IS NOT NULL) AND
-            -- c.Address IS NOT NULL AND
-            -- c.City IS NOT NULL AND
-            -- c.PostalCode IS NOT NULL AND
-            -- c.Country IS NOT NULL AND
+            ((pc.FirstName IS NOT NULL AND pc.LastName IS NOT NULL) OR cc.CompanyName IS NOT NULL) AND
+            c.Address IS NOT NULL AND
+            c.City IS NOT NULL AND
+            c.PostalCode IS NOT NULL AND
+            c.Country IS NOT NULL AND
             c.CustomerID = @CustomerID
         ) THEN 1 ELSE 0 END
 END

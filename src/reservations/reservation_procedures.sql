@@ -12,6 +12,7 @@ CREATE OR ALTER PROCEDURE AddReservation (
 )
 AS BEGIN
     BEGIN TRY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
     BEGIN TRANSACTION
 
         IF dbo.AreTablesAvailable(@StartDate, @EndDate, @Tables) = 0 BEGIN
@@ -76,6 +77,7 @@ CREATE OR ALTER PROCEDURE PrivateOnlineReservation (
 )
 AS BEGIN
     BEGIN TRY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
     BEGIN TRANSACTION
 
         IF NOT EXISTS (SELECT * FROM PrivateCustomers WHERE CustomerID = @CustomerID) BEGIN
@@ -139,6 +141,7 @@ CREATE OR ALTER PROCEDURE CompanyOnlineReservation  (
 )
 AS BEGIN
     BEGIN TRY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
     BEGIN TRANSACTION
 
         IF NOT EXISTS (SELECT * FROM CompanyCustomers WHERE CustomerID = @CustomerID) BEGIN
@@ -188,20 +191,32 @@ GO
 --- Akceptuje rezerwację złożoną przez formularz internetowy
 CREATE OR ALTER PROCEDURE AcceptReservation (@ReservationID int)
 AS BEGIN
-    IF(SELECT Accepted FROM Reservations WHERE ReservationID = @ReservationID) = 1
-    BEGIN
-        ;THROW 52000, 'Reservation already accepted', 1
-        RETURN
-    END
+    BEGIN TRY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
+    BEGIN TRANSACTION    
 
-    IF(SELECT Canceled FROM Reservations WHERE ReservationID = @ReservationID) = 1
-    BEGIN
-        ;THROW 52000, 'Reservation cancelled before acceptation', 1
-        RETURN
-    END
+        IF(SELECT Accepted FROM Reservations WHERE ReservationID = @ReservationID) = 1
+        BEGIN
+            ;THROW 52000, 'Reservation already accepted', 1
+            RETURN
+        END
 
-    UPDATE Reservations SET Accepted = 1
-    WHERE ReservationID = @ReservationID
+        IF(SELECT Canceled FROM Reservations WHERE ReservationID = @ReservationID) = 1
+        BEGIN
+            ;THROW 52000, 'Reservation cancelled before acceptation', 1
+            RETURN
+        END
+
+        UPDATE Reservations SET Accepted = 1
+        WHERE ReservationID = @ReservationID
+
+    COMMIT
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK;
+        THROW;
+    END CATCH
 END
 GO
 --<
@@ -213,6 +228,7 @@ GO
 CREATE OR ALTER PROCEDURE CancelReservation (@ReservationID int)
 AS BEGIN
     BEGIN TRY
+    SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
     BEGIN TRANSACTION
 
         IF(@ReservationID NOT IN (SELECT ReservationID FROM Reservations))
