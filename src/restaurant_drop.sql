@@ -1,6 +1,3 @@
--- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2022-01-02 11:30:38.749
-
 -- foreign keys
 ALTER TABLE CompanyCustomers DROP CONSTRAINT Customers_CompanyCustomers;
 

@@ -1,6 +1,3 @@
--- Created by Vertabelo (http://vertabelo.com)
--- Last modification date: 2022-01-02 11:30:38.749
-
 --> Tabele
 --# CompanyCustomers
 --- Przechowuje informacje o firmach: numer firmy, nazwa firmy, (opcjonalny) NIP.
